@@ -75,8 +75,7 @@ class QMS(QMainWindow):
         self.init_ui()
         self.setWindowTitle("QMS - Settings")
         self.setFixedSize(self.size())
-        icon = "icon_primary_light.png" if darkdetect.isDark() else "icon_primary_dark.png"
-        self.setWindowIcon(QIcon(os.path.join(ICONS_FOLDER, icon)))
+        self.setWindowIcon(QIcon(os.path.join(ICONS_FOLDER, "icon.png")))
         self.settings = {}
         self.first_run = False
         self.secondary_monitor_enabled = self.is_selected_monitor_active()
