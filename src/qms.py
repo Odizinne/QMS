@@ -9,49 +9,56 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon
 from design import Ui_MainWindow
 
-MULTIMONITORTOOL = os.path.join("dependencies/multimonitortool.exe")
-MONITORS_XML = "dependencies/monitors.xml"
+
+MULTIMONITORTOOL = os.path.join("dependencies", "multimonitortool.exe")
+MONITORS_XML = os.path.join("dependencies", "monitors.xml")
 SETTINGS_FILE = os.path.join(os.environ["APPDATA"], "QMS", "settings.json")
 ICONS_FOLDER = "icons"
+STARTUP_SHORTCUT_NAME = "qms.lnk"
+TARGET_PATH = os.path.join(os.getcwd(), "qms.exe")
 
 
 def manage_startup_shortcut(state):
-    target_path = os.path.join(os.getcwd(), "qms.exe")
     startup_folder = winshell.startup()
-    shortcut_path = os.path.join(startup_folder, "qms.lnk")
+    shortcut_path = os.path.join(startup_folder, STARTUP_SHORTCUT_NAME)
+
     if state:
         winshell.CreateShortcut(
             Path=shortcut_path,
-            Target=target_path,
-            Icon=(target_path, 0),
+            Target=TARGET_PATH,
+            Icon=(TARGET_PATH, 0),
             Description="QuickMonitorSwitcher",
-            StartIn=os.path.dirname(target_path),
+            StartIn=os.path.dirname(TARGET_PATH),
         )
     elif os.path.exists(shortcut_path):
         os.remove(shortcut_path)
 
 
 def check_startup_shortcut():
-    return os.path.exists(os.path.join(winshell.startup(), "qms.lnk"))
+    return os.path.exists(os.path.join(winshell.startup(), STARTUP_SHORTCUT_NAME))
 
 
 def create_monitors_xml():
-    subprocess.run([MULTIMONITORTOOL, "/sxml", MONITORS_XML])
+    try:
+        subprocess.run([MULTIMONITORTOOL, "/sxml", MONITORS_XML], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error creating monitors XML: {e}")
+        sys.exit(1)
 
 
 def parse_monitors_xml(xml_path):
     """Parse the XML file and extract monitor information."""
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-    monitors = []
-
-    for item in root.findall("item"):
-        name = item.find("name").text
-        monitor_name = item.find("monitor_name").text
-        active = item.find("active").text
-        monitors.append((name, monitor_name, active))
-
-    return monitors
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        monitors = [
+            (item.find("name").text, item.find("monitor_name").text, item.find("active").text)
+            for item in root.findall("item")
+        ]
+        return monitors
+    except ET.ParseError as e:
+        print(f"Error parsing monitors XML: {e}")
+        sys.exit(1)
 
 
 def generate_monitors():
@@ -59,18 +66,13 @@ def generate_monitors():
     return parse_monitors_xml(MONITORS_XML)
 
 
-create_monitors_xml()
-
-if os.path.exists(MONITORS_XML):
-    monitors = parse_monitors_xml(MONITORS_XML)
-
-
 class QMS(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.populate_combobox()
+        self.monitors = generate_monitors()
+        self.init_ui()
         self.setWindowTitle("QMS - Settings")
         self.setFixedSize(self.size())
         icon = "icon_primary_light.png" if darkdetect.isDark() else "icon_primary_dark.png"
@@ -79,15 +81,14 @@ class QMS(QMainWindow):
         self.first_run = False
         self.secondary_monitor_enabled = self.is_selected_monitor_active()
         self.tray_icon = self.create_tray_icon()
+        self.load_settings()
+
+    def init_ui(self):
+        for monitor in self.monitors:
+            self.ui.comboBox.addItem(monitor[1])
         self.ui.comboBox.currentIndexChanged.connect(self.save_settings)
         self.ui.startup_checkbox.setChecked(check_startup_shortcut())
         self.ui.startup_checkbox.stateChanged.connect(manage_startup_shortcut)
-        self.create_tray_icon()
-        self.load_settings()
-
-    def populate_combobox(self):
-        for monitor in monitors:
-            self.ui.comboBox.addItem(monitor[1])
 
     def save_settings(self):
         self.settings = {
@@ -153,7 +154,7 @@ class QMS(QMainWindow):
 
     def is_selected_monitor_active(self):
         current_monitor_name = self.ui.comboBox.currentText()
-        for monitor in monitors:
+        for monitor in self.monitors:
             if monitor[1] == current_monitor_name:
                 return monitor[2] == "Yes"
         return False
@@ -162,14 +163,14 @@ class QMS(QMainWindow):
         if self.secondary_monitor_enabled:
             displayswitch_action = "/internal"
             ddc_action = "/TurnOff"
-            subprocess.run([MULTIMONITORTOOL, ddc_action, monitors[self.ui.comboBox.currentIndex()][0]])
+            subprocess.run([MULTIMONITORTOOL, ddc_action, self.monitors[self.ui.comboBox.currentIndex()][0]])
             subprocess.run(["displayswitch.exe", displayswitch_action])
         else:
             displayswitch_action = "/extend"
             ddc_action = "/TurnOn"
 
             subprocess.run(["displayswitch.exe", displayswitch_action])
-            subprocess.run([MULTIMONITORTOOL, ddc_action, monitors[self.ui.comboBox.currentIndex()][0]])
+            subprocess.run([MULTIMONITORTOOL, ddc_action, self.monitors[self.ui.comboBox.currentIndex()][0]])
 
         self.secondary_monitor_enabled = not self.secondary_monitor_enabled
         self.update_tray_icon()
