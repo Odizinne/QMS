@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file '.\ui\design.ui'
+# Form implementation generated from reading ui file '.\src\ui\design.ui'
 #
 # Created by: PyQt6 UI code generator 6.7.1
 #
@@ -49,4 +49,4 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.startup_checkbox.setText(_translate("MainWindow", "Run at startup"))
-        self.label.setText(_translate("MainWindow", "Send DDCCI commands to:"))
+        self.label.setText(_translate("MainWindow", "Send ON/OFF signal to:"))

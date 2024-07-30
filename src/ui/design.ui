@@ -51,7 +51,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Send DDCCI commands to:</string>
+       <string>Send ON/OFF signal to:</string>
       </property>
      </widget>
     </item>
