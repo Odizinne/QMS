@@ -54,14 +54,15 @@ def parse_monitors_xml(xml_path):
     return monitors
 
 
+def generate_monitors():
+    create_monitors_xml()
+    return parse_monitors_xml(MONITORS_XML)
+
+
 create_monitors_xml()
 
 if os.path.exists(MONITORS_XML):
     monitors = parse_monitors_xml(MONITORS_XML)
-    for monitor in monitors:
-        print(monitor)
-else:
-    print("XML file does not exist.")
 
 
 class QMS(QMainWindow):
@@ -82,7 +83,6 @@ class QMS(QMainWindow):
         self.ui.startup_checkbox.setChecked(check_startup_shortcut())
         self.ui.startup_checkbox.stateChanged.connect(manage_startup_shortcut)
         self.create_tray_icon()
-
         self.load_settings()
 
     def populate_combobox(self):
@@ -108,20 +108,23 @@ class QMS(QMainWindow):
                 if index != -1:
                     self.ui.comboBox.setCurrentIndex(index)
                 else:
-                    print(f"Warning: The saved monitor '{secondary_monitor}' is not in the combobox items.")
+                    pass
         else:
             self.first_run = True
-            print("Settings file does not exist.")
 
     def create_tray_icon(self):
         theme = "light" if darkdetect.isDark() else "dark"
         variant = "secondary" if not self.secondary_monitor_enabled else "primary"
         tray_icon = QSystemTrayIcon(QIcon(os.path.join(ICONS_FOLDER, f"icon_{variant}_{theme}.png")))
-        print(os.path.exists(os.path.join(ICONS_FOLDER, f"icon_primary_{theme}.png")))
         tray_icon.setToolTip("QMS")
         tray_icon.setContextMenu(self.create_tray_menu())
+        tray_icon.activated.connect(self.handle_tray_icon_click)
         tray_icon.show()
         return tray_icon
+
+    def handle_tray_icon_click(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            self.toggle_secondary_monitor()
 
     def create_tray_menu(self):
         menu = QMenu()
@@ -136,7 +139,7 @@ class QMS(QMainWindow):
         settings_action.triggered.connect(self.show)
         menu.addAction(settings_action)
         exit_action = menu.addAction("Exit")
-        exit_action.triggered.connect(QApplication.instance().quit)
+        exit_action.triggered.connect(self.exit_app)
         menu.addAction(exit_action)
         return menu
 
@@ -171,6 +174,12 @@ class QMS(QMainWindow):
         self.secondary_monitor_enabled = not self.secondary_monitor_enabled
         self.update_tray_icon()
         self.update_tray_menu()
+
+    def exit_app(self):
+        self.close()
+        self.tray_icon.hide()
+        QApplication.quit()
+        sys.exit()
 
     def closeEvent(self, event):
         event.ignore()
