@@ -5,7 +5,7 @@ import json
 import xml.etree.ElementTree as ET
 import darkdetect
 import winshell
-from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu
+from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, QCheckBox
 from PyQt6.QtGui import QIcon
 from design import Ui_MainWindow
 
@@ -52,7 +52,12 @@ def parse_monitors_xml(xml_path):
         tree = ET.parse(xml_path)
         root = tree.getroot()
         monitors = [
-            (item.find("name").text, item.find("monitor_name").text, item.find("active").text)
+            (
+                item.find("name").text,
+                item.find("monitor_name").text,
+                item.find("active").text,
+                item.find("primary").text,
+            )
             for item in root.findall("item")
         ]
         return monitors
@@ -74,24 +79,31 @@ class QMS(QMainWindow):
         self.monitors = generate_monitors()
         self.init_ui()
         self.setWindowTitle("QMS - Settings")
-        self.setFixedSize(self.size())
         self.setWindowIcon(QIcon(os.path.join(ICONS_FOLDER, "icon.png")))
         self.settings = {}
         self.first_run = False
-        self.secondary_monitor_enabled = self.is_selected_monitor_active()
+        self.secondary_monitors_enabled = self.get_active_monitors()
         self.tray_icon = self.create_tray_icon()
         self.load_settings()
 
     def init_ui(self):
+        self.monitor_checkboxes = {}
         for monitor in self.monitors:
-            self.ui.comboBox.addItem(monitor[1])
-        self.ui.comboBox.currentIndexChanged.connect(self.save_settings)
+            if monitor[3] == "No":
+                checkbox = QCheckBox(monitor[1])
+                checkbox.stateChanged.connect(self.save_settings)
+                self.ui.gridLayout_2.addWidget(checkbox)
+                self.monitor_checkboxes[monitor[1]] = checkbox
+        self.adjustSize()
+        self.setFixedSize(250, self.height())
         self.ui.startup_checkbox.setChecked(check_startup_shortcut())
         self.ui.startup_checkbox.stateChanged.connect(manage_startup_shortcut)
 
     def save_settings(self):
         self.settings = {
-            "secondary_monitor": self.ui.comboBox.currentText(),
+            "secondary_monitors": [
+                monitor for monitor, checkbox in self.monitor_checkboxes.items() if checkbox.isChecked()
+            ]
         }
         os.makedirs(os.path.dirname(SETTINGS_FILE), exist_ok=True)
         with open(SETTINGS_FILE, "w") as f:
@@ -102,19 +114,14 @@ class QMS(QMainWindow):
             with open(SETTINGS_FILE, "r") as f:
                 self.settings = json.load(f)
 
-            secondary_monitor = self.settings.get("secondary_monitor")
-            if secondary_monitor:
-                index = self.ui.comboBox.findText(secondary_monitor)
-                if index != -1:
-                    self.ui.comboBox.setCurrentIndex(index)
-                else:
-                    pass
+            for monitor, checkbox in self.monitor_checkboxes.items():
+                checkbox.setChecked(monitor in self.settings.get("secondary_monitors", []))
         else:
             self.first_run = True
 
     def create_tray_icon(self):
         theme = "light" if darkdetect.isDark() else "dark"
-        variant = "secondary" if not self.secondary_monitor_enabled else "primary"
+        variant = "secondary" if not self.secondary_monitors_enabled else "primary"
         tray_icon = QSystemTrayIcon(QIcon(os.path.join(ICONS_FOLDER, f"icon_{variant}_{theme}.png")))
         tray_icon.setToolTip("QMS")
         tray_icon.setContextMenu(self.create_tray_menu())
@@ -124,16 +131,16 @@ class QMS(QMainWindow):
 
     def handle_tray_icon_click(self, reason):
         if reason == QSystemTrayIcon.ActivationReason.Trigger:
-            self.toggle_secondary_monitor()
+            self.toggle_secondary_monitors()
 
     def create_tray_menu(self):
         menu = QMenu()
         enable_secondary_action = (
-            menu.addAction("Enable secondary monitor")
-            if not self.secondary_monitor_enabled
-            else menu.addAction("Disable secondary monitor")
+            menu.addAction("Enable secondary monitors")
+            if not self.secondary_monitors_enabled
+            else menu.addAction("Disable secondary monitors")
         )
-        enable_secondary_action.triggered.connect(self.toggle_secondary_monitor)
+        enable_secondary_action.triggered.connect(self.toggle_secondary_monitors)
         menu.addAction(enable_secondary_action)
         settings_action = menu.addAction("Settings")
         settings_action.triggered.connect(self.show)
@@ -145,35 +152,45 @@ class QMS(QMainWindow):
 
     def update_tray_icon(self):
         theme = "light" if darkdetect.isDark() else "dark"
-        variant = "secondary" if not self.secondary_monitor_enabled else "primary"
+        variant = "secondary" if not self.secondary_monitors_enabled else "primary"
         self.tray_icon.setIcon(QIcon(os.path.join(ICONS_FOLDER, f"icon_{variant}_{theme}.png")))
 
     def update_tray_menu(self):
         self.tray_icon.setContextMenu(self.create_tray_menu())
 
-    def is_selected_monitor_active(self):
-        current_monitor_name = self.ui.comboBox.currentText()
-        for monitor in self.monitors:
-            if monitor[1] == current_monitor_name:
-                return monitor[2] == "Yes"
-        return False
+    def get_active_monitors(self):
+        active_monitors_count = sum(1 for monitor in self.monitors if monitor[2] == "Yes" and monitor[3] == "No")
+        return active_monitors_count > 0
 
-    def toggle_secondary_monitor(self):
-        if self.secondary_monitor_enabled:
-            displayswitch_action = "/internal"
-            ddc_action = "/TurnOff"
-            subprocess.run([MULTIMONITORTOOL, ddc_action, self.monitors[self.ui.comboBox.currentIndex()][0]])
-            subprocess.run(["displayswitch.exe", displayswitch_action])
+    def toggle_secondary_monitors(self):
+        if self.secondary_monitors_enabled:
+            self.disable_secondary_monitors()
+            self.secondary_monitors_enabled = False
         else:
-            displayswitch_action = "/extend"
-            ddc_action = "/TurnOn"
+            self.enable_secondary_monitors()
+            self.secondary_monitors_enabled = True
 
-            subprocess.run(["displayswitch.exe", displayswitch_action])
-            subprocess.run([MULTIMONITORTOOL, ddc_action, self.monitors[self.ui.comboBox.currentIndex()][0]])
-
-        self.secondary_monitor_enabled = not self.secondary_monitor_enabled
         self.update_tray_icon()
         self.update_tray_menu()
+
+    def enable_secondary_monitors(self):
+        # Run multimonitortool before displayswitch
+        subprocess.run(["displayswitch.exe", "/extend"])
+        for monitor, checkbox in self.monitor_checkboxes.items():
+            if checkbox.isChecked():
+                monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
+                if not self.secondary_monitors_enabled:
+                    subprocess.run([MULTIMONITORTOOL, "/TurnOn", self.monitors[monitor_index][0]])
+
+    def disable_secondary_monitors(self):
+        # Run displayswitch after multimonitortool
+        for monitor, checkbox in self.monitor_checkboxes.items():
+            if checkbox.isChecked():
+                monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
+                if self.secondary_monitors_enabled:
+                    subprocess.run([MULTIMONITORTOOL, "/TurnOff", self.monitors[monitor_index][0]])
+
+        subprocess.run(["displayswitch.exe", "/internal"])
 
     def exit_app(self):
         self.close()
