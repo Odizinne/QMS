@@ -20,6 +20,14 @@ It is really basic and will maybe be extended to support multiple monitors one d
 
 Your chosen monitors are saved for next run.
 
+## Command line interface
+
+Since i'm building as a windows gui app to avoid console, there will be no output in terminal.
+
+Commands:
+- `--list`: Will create a file `monitors.txt` in current working directory, with monitors name, state, and primary state.
+- `--enable "monitor1" "monitor2"`: displayswitch to extend and send ddcci power on signal to selected monitors.
+- `--disable "monitor1" "monitor2"`: displayswitch to extend and send ddcci power off signal to selected monitors.
 ## Help
 
 - **My monitor goes black even when unchecked:**

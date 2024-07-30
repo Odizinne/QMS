@@ -1,74 +1,17 @@
 import os
 import sys
-import subprocess
 import json
-import xml.etree.ElementTree as ET
 import darkdetect
-import winshell
+import argparse
 from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, QCheckBox
 from PyQt6.QtGui import QIcon
 from design import Ui_MainWindow
+from monitor_manager import generate_monitors, send_ddcci_off, send_ddcci_on, list_monitors, send_displayswitch
+from shortcut_manager import check_startup_shortcut, manage_startup_shortcut
 
 
-MULTIMONITORTOOL = os.path.join("dependencies", "multimonitortool.exe")
-MONITORS_XML = os.path.join("dependencies", "monitors.xml")
 SETTINGS_FILE = os.path.join(os.environ["APPDATA"], "QMS", "settings.json")
 ICONS_FOLDER = "icons"
-STARTUP_SHORTCUT_NAME = "qms.lnk"
-TARGET_PATH = os.path.join(os.getcwd(), "qms.exe")
-
-
-def manage_startup_shortcut(state):
-    startup_folder = winshell.startup()
-    shortcut_path = os.path.join(startup_folder, STARTUP_SHORTCUT_NAME)
-
-    if state:
-        winshell.CreateShortcut(
-            Path=shortcut_path,
-            Target=TARGET_PATH,
-            Icon=(TARGET_PATH, 0),
-            Description="QuickMonitorSwitcher",
-            StartIn=os.path.dirname(TARGET_PATH),
-        )
-    elif os.path.exists(shortcut_path):
-        os.remove(shortcut_path)
-
-
-def check_startup_shortcut():
-    return os.path.exists(os.path.join(winshell.startup(), STARTUP_SHORTCUT_NAME))
-
-
-def create_monitors_xml():
-    try:
-        subprocess.run([MULTIMONITORTOOL, "/sxml", MONITORS_XML], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error creating monitors XML: {e}")
-        sys.exit(1)
-
-
-def parse_monitors_xml(xml_path):
-    """Parse the XML file and extract monitor information."""
-    try:
-        tree = ET.parse(xml_path)
-        root = tree.getroot()
-        monitors = [
-            (
-                item.find("name").text,
-                item.find("monitor_name").text,
-                item.find("active").text,
-                item.find("primary").text,
-            )
-            for item in root.findall("item")
-        ]
-        return monitors
-    except ET.ParseError as e:
-        print(f"Error parsing monitors XML: {e}")
-        sys.exit(1)
-
-
-def generate_monitors():
-    create_monitors_xml()
-    return parse_monitors_xml(MONITORS_XML)
 
 
 class QMS(QMainWindow):
@@ -174,13 +117,13 @@ class QMS(QMainWindow):
         self.update_tray_menu()
 
     def enable_secondary_monitors(self):
-        # Run multimonitortool before displayswitch
-        subprocess.run(["displayswitch.exe", "/extend"])
+        # Run displayswitch before multimonitortool
+        send_displayswitch("/extend")
         for monitor, checkbox in self.monitor_checkboxes.items():
             if checkbox.isChecked():
                 monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
                 if not self.secondary_monitors_enabled:
-                    subprocess.run([MULTIMONITORTOOL, "/TurnOn", self.monitors[monitor_index][0]])
+                    send_ddcci_on([self.monitors[monitor_index][1]])
 
     def disable_secondary_monitors(self):
         # Run displayswitch after multimonitortool
@@ -188,9 +131,9 @@ class QMS(QMainWindow):
             if checkbox.isChecked():
                 monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
                 if self.secondary_monitors_enabled:
-                    subprocess.run([MULTIMONITORTOOL, "/TurnOff", self.monitors[monitor_index][0]])
+                    send_ddcci_off([self.monitors[monitor_index][1]])
 
-        subprocess.run(["displayswitch.exe", "/internal"])
+        send_displayswitch("/internal")
 
     def exit_app(self):
         self.close()
@@ -204,9 +147,34 @@ class QMS(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication([])
-    window = QMS()
-    if window.first_run:
-        window.show()
-    app.exec()
-    sys.exit(app.exec())
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-l", "--list", action="store_true", help="List available monitors")
+    parser.add_argument("-e", "--enable", nargs="+", help="Enable secondary monitors")
+    parser.add_argument("-d", "--disable", nargs="+", help="Disable secondary monitors")
+    args = parser.parse_args()
+
+    if args.list:
+        list_monitors()
+        sys.exit()
+
+    elif args.enable:
+        # Run displayswitch before multimonitortool
+        monitors = generate_monitors()
+        send_displayswitch("/extend")
+        send_ddcci_on(args.enable)
+        sys.exit()
+
+    elif args.disable:
+        # Run displayswitch after multimonitortool
+        monitors = generate_monitors()
+        send_ddcci_off(args.disable)
+        send_displayswitch("/internal")
+        sys.exit()
+
+    else:
+        app = QApplication([])
+        window = QMS()
+        if window.first_run:
+            window.show()
+        app.exec()
+        sys.exit(app.exec())
