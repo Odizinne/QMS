@@ -41,7 +41,9 @@ def generate_monitors():
     return parse_monitors_xml(MONITORS_XML)
 
 
-def send_ddcci_on(monitor_names):
+def enable_monitors(monitor_names):
+    # Run displayswitch before multimonitortool
+    subprocess.run(["displayswitch.exe", "/extend"], check=True)
     monitors = generate_monitors()
     for monitor in monitors:
         monitor_name = monitor[1]
@@ -54,7 +56,8 @@ def send_ddcci_on(monitor_names):
                 print(f"Error enabling monitor {monitor_name}: {e}")
 
 
-def send_ddcci_off(monitor_names):
+def disable_monitors(monitor_names):
+    # Run displayswitch after multimonitortool
     monitors = generate_monitors()
     for monitor in monitors:
         monitor_name = monitor[1]
@@ -66,13 +69,7 @@ def send_ddcci_off(monitor_names):
             except subprocess.CalledProcessError as e:
                 print(f"Error disabling monitor {monitor_name}: {e}")
 
-
-def send_displayswitch(argument):
-    try:
-        subprocess.run(["displayswitch.exe", argument], check=True)
-        print(f"Switched to {argument} display.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error switching to {argument} display: {e}")
+    subprocess.run(["displayswitch.exe", "/internal"], check=True)
 
 
 def list_monitors():

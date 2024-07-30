@@ -6,7 +6,7 @@ import argparse
 from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, QCheckBox
 from PyQt6.QtGui import QIcon
 from design import Ui_MainWindow
-from monitor_manager import generate_monitors, send_ddcci_off, send_ddcci_on, list_monitors, send_displayswitch
+from monitor_manager import generate_monitors, enable_monitors, disable_monitors, list_monitors
 from shortcut_manager import check_startup_shortcut, manage_startup_shortcut
 
 
@@ -106,34 +106,17 @@ class QMS(QMainWindow):
         return active_monitors_count > 0
 
     def toggle_secondary_monitors(self):
-        if self.secondary_monitors_enabled:
-            self.disable_secondary_monitors()
-            self.secondary_monitors_enabled = False
-        else:
-            self.enable_secondary_monitors()
-            self.secondary_monitors_enabled = True
-
-        self.update_tray_icon()
-        self.update_tray_menu()
-
-    def enable_secondary_monitors(self):
-        # Run displayswitch before multimonitortool
-        send_displayswitch("/extend")
-        for monitor, checkbox in self.monitor_checkboxes.items():
-            if checkbox.isChecked():
-                monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
-                if not self.secondary_monitors_enabled:
-                    send_ddcci_on([self.monitors[monitor_index][1]])
-
-    def disable_secondary_monitors(self):
-        # Run displayswitch after multimonitortool
         for monitor, checkbox in self.monitor_checkboxes.items():
             if checkbox.isChecked():
                 monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
                 if self.secondary_monitors_enabled:
-                    send_ddcci_off([self.monitors[monitor_index][1]])
+                    disable_monitors([self.monitors[monitor_index][1]])
+                else:
+                    enable_monitors([self.monitors[monitor_index][1]])
 
-        send_displayswitch("/internal")
+        self.secondary_monitors_enabled = not self.secondary_monitors_enabled
+        self.update_tray_icon()
+        self.update_tray_menu()
 
     def exit_app(self):
         self.close()
@@ -158,17 +141,13 @@ if __name__ == "__main__":
         sys.exit()
 
     elif args.enable:
-        # Run displayswitch before multimonitortool
         monitors = generate_monitors()
-        send_displayswitch("/extend")
-        send_ddcci_on(args.enable)
+        enable_monitors(args.enable)
         sys.exit()
 
     elif args.disable:
-        # Run displayswitch after multimonitortool
         monitors = generate_monitors()
-        send_ddcci_off(args.disable)
-        send_displayswitch("/internal")
+        disable_monitors(args.disable)
         sys.exit()
 
     else:
