@@ -3,8 +3,9 @@ import sys
 import json
 import darkdetect
 import argparse
-from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, QCheckBox
+from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, QCheckBox, QLabel
 from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize, Qt
 from design import Ui_MainWindow
 from monitor_manager import generate_monitors, enable_monitors, disable_monitors, list_monitors
 from shortcut_manager import check_startup_shortcut, manage_startup_shortcut
@@ -30,23 +31,45 @@ class QMS(QMainWindow):
         self.load_settings()
 
     def init_ui(self):
+        self.create_monitor_checkboxes()
+        self.ui.startup_checkbox.setChecked(check_startup_shortcut())
+        self.ui.startup_checkbox.stateChanged.connect(manage_startup_shortcut)
+        self.ui.rescan_button.clicked.connect(self.create_monitor_checkboxes)
+
+    def clear_monitor_checkboxes(self):
+        while self.ui.gridLayout_2.count():
+            item = self.ui.gridLayout_2.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+    def create_monitor_checkboxes(self):
+        self.clear_monitor_checkboxes()
         self.monitor_checkboxes = {}
         for monitor in self.monitors:
             if monitor[3] == "No":
-                checkbox = QCheckBox(monitor[1])
+                label = QLabel(monitor[1])
+                checkbox = QCheckBox()
                 checkbox.stateChanged.connect(self.save_settings)
-                self.ui.gridLayout_2.addWidget(checkbox)
+                label.setMinimumSize(QSize(0, 25))
+                checkbox.setMinimumSize(QSize(0, 25))
+                checkbox.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+                row = self.ui.gridLayout_2.rowCount()
+                self.ui.gridLayout_2.addWidget(label, row, 0)
+                self.ui.gridLayout_2.addWidget(checkbox, row, 1)
                 self.monitor_checkboxes[monitor[1]] = checkbox
+
+        self.ui.monitors_frame.adjustSize()
         self.adjustSize()
-        self.setFixedSize(250, self.height())
-        self.ui.startup_checkbox.setChecked(check_startup_shortcut())
-        self.ui.startup_checkbox.stateChanged.connect(manage_startup_shortcut)
+        self.resize(250, 0)
+        self.resize(250, 1)
+        # Disgusting but works
 
     def save_settings(self):
         self.settings = {
             "secondary_monitors": [
                 monitor for monitor, checkbox in self.monitor_checkboxes.items() if checkbox.isChecked()
-            ]
+            ],
         }
         os.makedirs(os.path.dirname(SETTINGS_FILE), exist_ok=True)
         with open(SETTINGS_FILE, "w") as f:
@@ -59,6 +82,7 @@ class QMS(QMainWindow):
 
             for monitor, checkbox in self.monitor_checkboxes.items():
                 checkbox.setChecked(monitor in self.settings.get("secondary_monitors", []))
+
         else:
             self.first_run = True
 
