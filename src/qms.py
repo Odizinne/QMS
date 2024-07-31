@@ -20,7 +20,7 @@ class QMS(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.monitors = generate_monitors()
+        self.monitors = None
         self.init_ui()
         self.setWindowTitle("QMS - Settings")
         self.setWindowIcon(QIcon(os.path.join(ICONS_FOLDER, "icon.png")))
@@ -45,6 +45,7 @@ class QMS(QMainWindow):
 
     def create_monitor_checkboxes(self):
         self.clear_monitor_checkboxes()
+        self.monitors = generate_monitors()
         self.monitor_checkboxes = {}
         for monitor in self.monitors:
             if monitor[3] == "No":
