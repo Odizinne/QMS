@@ -41,35 +41,21 @@ def generate_monitors():
     return parse_monitors_xml(MONITORS_XML)
 
 
-def enable_monitors(monitor_names):
-    # Run displayswitch before multimonitortool
-    subprocess.run(["displayswitch.exe", "/extend"], check=True)
+def run_display_switch(mode):
+    subprocess.run(["displayswitch.exe", mode], check=True)
+
+
+def toggle_monitors(monitor_names, enable):
+    action = "/TurnOn" if enable else "/TurnOff"
     monitors = generate_monitors()
     for monitor in monitors:
         monitor_name = monitor[1]
         if monitor_name in monitor_names:
             try:
                 monitor_index = monitor[0]
-                subprocess.run([MULTIMONITORTOOL, "/TurnOn", monitor_index], check=True)
-                print(f"Enabled monitor: {monitor_name}")
+                subprocess.run([MULTIMONITORTOOL, action, monitor_index], check=True)
             except subprocess.CalledProcessError as e:
-                print(f"Error enabling monitor {monitor_name}: {e}")
-
-
-def disable_monitors(monitor_names):
-    # Run displayswitch after multimonitortool
-    monitors = generate_monitors()
-    for monitor in monitors:
-        monitor_name = monitor[1]
-        if monitor_name in monitor_names:
-            try:
-                monitor_index = monitor[0]
-                subprocess.run([MULTIMONITORTOOL, "/TurnOff", monitor_index], check=True)
-                print(f"Disabled monitor: {monitor_name}")
-            except subprocess.CalledProcessError as e:
-                print(f"Error disabling monitor {monitor_name}: {e}")
-
-    subprocess.run(["displayswitch.exe", "/internal"], check=True)
+                print(f"Error toggling monitor {monitor_name}: {e}")
 
 
 def list_monitors():

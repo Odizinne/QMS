@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, Q
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize, Qt
 from design import Ui_MainWindow
-from monitor_manager import generate_monitors, enable_monitors, disable_monitors, list_monitors
+from monitor_manager import generate_monitors, toggle_monitors, list_monitors, run_display_switch
 from shortcut_manager import check_startup_shortcut, manage_startup_shortcut
 
 
@@ -131,17 +131,22 @@ class QMS(QMainWindow):
         return active_monitors_count > 0
 
     def toggle_secondary_monitors(self):
+        if not self.secondary_monitors_enabled:
+            run_display_switch("/extend")
         for monitor, checkbox in self.monitor_checkboxes.items():
             if checkbox.isChecked():
                 monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
                 if self.secondary_monitors_enabled:
-                    disable_monitors([self.monitors[monitor_index][1]])
+                    toggle_monitors([self.monitors[monitor_index][1]], enable=False)
                 else:
-                    enable_monitors([self.monitors[monitor_index][1]])
+                    toggle_monitors([self.monitors[monitor_index][1]], enable=True)
 
+        if self.secondary_monitors_enabled:
+            run_display_switch("/internal")
         self.secondary_monitors_enabled = not self.secondary_monitors_enabled
         self.update_tray_icon()
         self.update_tray_menu()
+        self.create_monitor_checkboxes()
 
     def exit_app(self):
         self.close()
@@ -167,12 +172,12 @@ if __name__ == "__main__":
 
     elif args.enable:
         monitors = generate_monitors()
-        enable_monitors(args.enable)
+        toggle_monitors(args.enable, enable=True)
         sys.exit()
 
     elif args.disable:
         monitors = generate_monitors()
-        disable_monitors(args.disable)
+        toggle_monitors(args.disable, enable=False)
         sys.exit()
 
     else:
