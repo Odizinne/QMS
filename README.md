@@ -41,7 +41,8 @@ Software signal is always sent, no matter the checkbox state.
 
 - **My monitor does not appear in the list:**
 
-For convenance, your primary monitor (aka the default one) does not appear in the monitors list.
+For convenance, your primary monitor (aka the default one) does not appear in the monitors list.  
+Some entry level monitors are not detected when they are disabled. I'll fix it the day i find a solution.
 
 - **My monitor does not turn off:**
 
