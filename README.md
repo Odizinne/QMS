@@ -1,4 +1,6 @@
 # QMS - QuickMonitorSwitcher
+[![Github All Releases](https://img.shields.io/github/downloads/odizinne/QMS-QuickMonitorSwitcher/total.svg)]()
+[![license](https://img.shields.io/github/license/odizinne/QMS-QuickMonitorSwitcher)]()
 
 One click on/off secondary monitors
 
