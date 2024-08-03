@@ -9,6 +9,8 @@ from PyQt6.QtCore import QSize, Qt
 from design import Ui_MainWindow
 from monitor_manager import generate_monitors, toggle_monitors, list_monitors, run_display_switch
 from shortcut_manager import check_startup_shortcut, manage_startup_shortcut
+from utils import is_windows_10
+from color_utils import set_frame_color_based_on_window
 
 
 SETTINGS_FILE = os.path.join(os.environ["APPDATA"], "QMS", "settings.json")
@@ -21,6 +23,7 @@ class QMS(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.monitors = None
+        self.set_fusion_frames()
         self.init_ui()
         self.setWindowTitle("QMS - Settings")
         self.setWindowIcon(QIcon(os.path.join(ICONS_FOLDER, "icon.png")))
@@ -35,6 +38,11 @@ class QMS(QMainWindow):
         self.ui.startup_checkbox.setChecked(check_startup_shortcut())
         self.ui.startup_checkbox.stateChanged.connect(manage_startup_shortcut)
         self.ui.rescan_button.clicked.connect(self.create_monitor_checkboxes)
+
+    def set_fusion_frames(self):
+        if app.style().objectName() == "fusion":
+            set_frame_color_based_on_window(self, self.ui.gridFrame)
+            set_frame_color_based_on_window(self, self.ui.monitors_frame)
 
     def clear_monitor_checkboxes(self):
         while self.ui.gridLayout_2.count():
@@ -182,6 +190,8 @@ if __name__ == "__main__":
 
     else:
         app = QApplication([])
+        if is_windows_10():
+            app.setStyle("Fusion")
         window = QMS()
         if window.first_run:
             window.show()
