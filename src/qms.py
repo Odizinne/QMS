@@ -3,6 +3,7 @@ import sys
 import json
 import darkdetect
 import argparse
+from functools import partial
 from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, QCheckBox, QLabel
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize, Qt
@@ -18,11 +19,12 @@ ICONS_FOLDER = "icons"
 
 
 class QMS(QMainWindow):
-    def __init__(self):
+    def __init__(self, no_ddcci=False):
         super().__init__()
+        self.no_ddcci = no_ddcci
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.monitors = None
+        self.monitors = generate_monitors()
         self.set_fusion_frames()
         self.init_ui()
         self.setWindowTitle("QMS - Settings")
@@ -34,9 +36,14 @@ class QMS(QMainWindow):
         self.load_settings()
 
     def init_ui(self):
-        self.create_monitor_checkboxes()
+        if not self.no_ddcci:
+            self.create_monitor_checkboxes()
+        self.ui.rescan_button.setVisible(not self.no_ddcci)
+        self.ui.monitors_frame.setVisible(not self.no_ddcci)
+        self.ui.label.setVisible(not self.no_ddcci)
+        self.adjustSize()
         self.ui.startup_checkbox.setChecked(check_startup_shortcut())
-        self.ui.startup_checkbox.stateChanged.connect(manage_startup_shortcut)
+        self.ui.startup_checkbox.stateChanged.connect(partial(manage_startup_shortcut, ddcci=self.no_ddcci))
         self.ui.rescan_button.clicked.connect(self.create_monitor_checkboxes)
 
     def set_fusion_frames(self):
@@ -70,9 +77,6 @@ class QMS(QMainWindow):
 
         self.ui.monitors_frame.adjustSize()
         self.adjustSize()
-        self.resize(250, 0)
-        self.resize(250, 1)
-        # Disgusting but works
 
     def save_settings(self):
         self.settings = {
@@ -89,8 +93,11 @@ class QMS(QMainWindow):
             with open(SETTINGS_FILE, "r") as f:
                 self.settings = json.load(f)
 
-            for monitor, checkbox in self.monitor_checkboxes.items():
-                checkbox.setChecked(monitor in self.settings.get("secondary_monitors", []))
+            try:
+                for monitor, checkbox in self.monitor_checkboxes.items():
+                    checkbox.setChecked(monitor in self.settings.get("secondary_monitors", []))
+            except AttributeError:
+                pass
 
         else:
             self.first_run = True
@@ -141,20 +148,22 @@ class QMS(QMainWindow):
     def toggle_secondary_monitors(self):
         if not self.secondary_monitors_enabled:
             run_display_switch("/extend")
-        for monitor, checkbox in self.monitor_checkboxes.items():
-            if checkbox.isChecked():
-                monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
-                if self.secondary_monitors_enabled:
-                    toggle_monitors([self.monitors[monitor_index][1]], enable=False)
-                else:
-                    toggle_monitors([self.monitors[monitor_index][1]], enable=True)
+        if not self.no_ddcci:
+            for monitor, checkbox in self.monitor_checkboxes.items():
+                if checkbox.isChecked():
+                    monitor_index = next(index for index, mon in enumerate(self.monitors) if mon[1] == monitor)
+                    if self.secondary_monitors_enabled:
+                        toggle_monitors([self.monitors[monitor_index][1]], enable=False)
+                    else:
+                        toggle_monitors([self.monitors[monitor_index][1]], enable=True)
 
         if self.secondary_monitors_enabled:
             run_display_switch("/internal")
         self.secondary_monitors_enabled = not self.secondary_monitors_enabled
         self.update_tray_icon()
         self.update_tray_menu()
-        self.create_monitor_checkboxes()
+        if not self.no_ddcci:
+            self.create_monitor_checkboxes()
 
     def exit_app(self):
         self.close()
@@ -172,6 +181,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--list", action="store_true", help="List available monitors")
     parser.add_argument("-e", "--enable", nargs="+", help="Enable secondary monitors")
     parser.add_argument("-d", "--disable", nargs="+", help="Disable secondary monitors")
+    parser.add_argument("--no-ddcci", action="store_true", help="Disable DDC/CI functionality")
     args = parser.parse_args()
 
     if args.list:
@@ -192,7 +202,7 @@ if __name__ == "__main__":
         app = QApplication([])
         if is_windows_10():
             app.setStyle("Fusion")
-        window = QMS()
+        window = QMS(no_ddcci=args.no_ddcci)
         if window.first_run:
             window.show()
         app.exec()

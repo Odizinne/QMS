@@ -32,6 +32,8 @@ Commands:
 - `--list`: Will create a file `monitors.txt` in current working directory, with monitors name, state, and primary state.
 - `--enable "monitor1" "monitor2"`: displayswitch to extend and send ddcci power on signal to selected monitors.
 - `--disable "monitor1" "monitor2"`: displayswitch to extend and send ddcci power off signal to selected monitors.
+- `--no-ddcci`: disable ddcci related features. Monitors list will not be generated, and monitors will not turn off via ddcci signal.
+
 ## Help
 
 - **My monitor goes black even when unchecked:**
