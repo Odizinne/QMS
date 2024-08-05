@@ -6,7 +6,7 @@ import argparse
 from functools import partial
 from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, QCheckBox, QLabel
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt, QTranslator, QLocale
 from design import Ui_MainWindow
 from monitor_manager import generate_monitors, toggle_monitors, list_monitors, run_display_switch
 from shortcut_manager import check_startup_shortcut, manage_startup_shortcut
@@ -27,7 +27,6 @@ class QMS(QMainWindow):
         self.monitors = generate_monitors()
         self.set_fusion_frames()
         self.init_ui()
-        self.setWindowTitle("QMS - Settings")
         self.setWindowIcon(QIcon(os.path.join(ICONS_FOLDER, "icon.png")))
         self.settings = {}
         self.first_run = False
@@ -202,8 +201,25 @@ if __name__ == "__main__":
         app = QApplication([])
         if is_windows_10():
             app.setStyle("Fusion")
-        window = QMS(no_ddcci=args.no_ddcci)
-        if window.first_run:
-            window.show()
-        app.exec()
-        sys.exit(app.exec())
+
+    translator = QTranslator()
+    locale = QLocale.system().name()
+    if locale.startswith("en"):
+        file_name = "tr/qms_en.qm"
+    elif locale.startswith("es"):
+        file_name = "tr/qms_es.qm"
+    elif locale.startswith("fr"):
+        file_name = "tr/qms_fr.qm"
+    elif locale.startswith("de"):
+        file_name = "tr/qms_de.qm"
+    else:
+        file_name = None
+
+    if file_name and translator.load(file_name):
+        app.installTranslator(translator)
+
+    window = QMS(no_ddcci=args.no_ddcci)
+    if window.first_run:
+        window.show()
+    app.exec()
+    sys.exit(app.exec())
