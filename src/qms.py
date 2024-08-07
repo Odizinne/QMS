@@ -203,15 +203,10 @@ if __name__ == "__main__":
             app.setStyle("Fusion")
 
     translator = QTranslator()
-    locale = QLocale.system().name()
-    if locale.startswith("en"):
-        file_name = "tr/qms_en.qm"
-    elif locale.startswith("es"):
-        file_name = "tr/qms_es.qm"
-    elif locale.startswith("fr"):
-        file_name = "tr/qms_fr.qm"
-    elif locale.startswith("de"):
-        file_name = "tr/qms_de.qm"
+    locale_name = QLocale.system().name()
+    locale = locale_name[:2]
+    if locale:
+        file_name = f"tr/qms_{locale}.qm"
     else:
         file_name = None
 

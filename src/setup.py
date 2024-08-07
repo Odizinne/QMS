@@ -2,7 +2,7 @@ import os
 from cx_Freeze import setup, Executable
 
 src_dir = os.path.dirname(os.path.abspath(__file__))
-build_dir = "build/QMS"
+build_dir = "build/QMS-QuickMonitorSwitcher"
 
 include_files = [
     os.path.join(src_dir, "icons"),
