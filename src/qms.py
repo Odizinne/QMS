@@ -117,19 +117,21 @@ class QMS(QMainWindow):
 
     def create_tray_menu(self):
         menu = QMenu()
-        enable_secondary_action = (
-            menu.addAction("Enable secondary monitors")
+
+        enable_secondary_action_text = (
+            self.tr("Enable secondary monitors")
             if not self.secondary_monitors_enabled
-            else menu.addAction("Disable secondary monitors")
+            else self.tr("Disable secondary monitors")
         )
+        enable_secondary_action = menu.addAction(enable_secondary_action_text)
         enable_secondary_action.triggered.connect(self.toggle_secondary_monitors)
-        menu.addAction(enable_secondary_action)
-        settings_action = menu.addAction("Settings")
+
+        settings_action = menu.addAction(self.tr("Settings"))
         settings_action.triggered.connect(self.show)
-        menu.addAction(settings_action)
-        exit_action = menu.addAction("Exit")
+
+        exit_action = menu.addAction(self.tr("Exit"))
         exit_action.triggered.connect(self.exit_app)
-        menu.addAction(exit_action)
+
         return menu
 
     def update_tray_icon(self):

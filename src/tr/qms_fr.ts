@@ -29,4 +29,27 @@
       <translation type="unfinished" />
     </message>
   </context>
+  <context>
+    <name>QMS</name>
+    <message>
+      <location filename="..\qms.py" line="122" />
+      <source>Enable secondary monitors</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="..\qms.py" line="124" />
+      <source>Disable secondary monitors</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="..\qms.py" line="129" />
+      <source>Settings</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="..\qms.py" line="132" />
+      <source>Exit</source>
+      <translation type="unfinished" />
+    </message>
+  </context>
 </TS>
