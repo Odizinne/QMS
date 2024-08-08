@@ -34,12 +34,12 @@
     <message>
         <location filename="../qms.py" line="122"/>
         <source>Enable secondary monitors</source>
-        <translation>Activer des écrans externes</translation>
+        <translation>Activer les écrans externes</translation>
     </message>
     <message>
         <location filename="../qms.py" line="124"/>
         <source>Disable secondary monitors</source>
-        <translation>Désactiver des écrans externes</translation>
+        <translation>Désactiver les écrans externes</translation>
     </message>
     <message>
         <location filename="../qms.py" line="129"/>
