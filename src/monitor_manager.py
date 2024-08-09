@@ -43,6 +43,9 @@ def generate_monitors():
 
 def run_display_switch(mode):
     subprocess.run(["displayswitch.exe", mode], check=True)
+    os.makedirs(os.path.join(os.environ.get("APPDATA"), "displayswitch_history"), exist_ok=True)
+    with open(os.path.join(os.environ.get("APPDATA"), "displayswitch_history", "displayswitch.txt"), "w") as f:
+        f.write(mode.lstrip("/"))
 
 
 def toggle_monitors(monitor_names, enable):
