@@ -17,7 +17,7 @@ from color_utils import set_frame_color_based_on_window
 
 SETTINGS_FILE = os.path.join(os.environ["APPDATA"], "QMS", "settings.json")
 ICONS_FOLDER = "icons"
-DISPLAYS_SWITCH_FILE = os.path.join(os.environ["APPDATA"], "BigPictureTV", "displayswitch.txt")
+DISPLAYS_SWITCH_FILE = os.path.join(os.environ["APPDATA"], "displayswitch_history", "displayswitch.txt")
 
 
 class FileWatcherThread(QThread):
