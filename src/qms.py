@@ -2,7 +2,6 @@ import os
 import sys
 import json
 import time
-import darkdetect
 import argparse
 from functools import partial
 from PyQt6.QtWidgets import QApplication, QMainWindow, QSystemTrayIcon, QMenu, QCheckBox, QLabel
@@ -11,7 +10,7 @@ from PyQt6.QtCore import QSize, Qt, QTranslator, QLocale, QThread, pyqtSignal
 from design import Ui_MainWindow
 from monitor_manager import generate_monitors, toggle_monitors, list_monitors, run_display_switch
 from shortcut_manager import check_startup_shortcut, manage_startup_shortcut
-from utils import is_windows_10
+from utils import is_windows_10, is_dark_mode_enabled
 from color_utils import set_frame_color_based_on_window
 
 
@@ -136,7 +135,7 @@ class QMS(QMainWindow):
             self.first_run = True
 
     def create_tray_icon(self):
-        theme = "light" if darkdetect.isDark() else "dark"
+        theme = "light" if is_dark_mode_enabled() else "dark"
         variant = "secondary" if not self.secondary_monitors_enabled else "primary"
         tray_icon = QSystemTrayIcon(QIcon(os.path.join(ICONS_FOLDER, f"icon_{variant}_{theme}.png")))
         tray_icon.setToolTip("QMS")
@@ -169,7 +168,7 @@ class QMS(QMainWindow):
         return menu
 
     def update_tray_icon(self):
-        theme = "light" if darkdetect.isDark() else "dark"
+        theme = "light" if is_dark_mode_enabled() else "dark"
         variant = "secondary" if not self.secondary_monitors_enabled else "primary"
         self.tray_icon.setIcon(QIcon(os.path.join(ICONS_FOLDER, f"icon_{variant}_{theme}.png")))
 
