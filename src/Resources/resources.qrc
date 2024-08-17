@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/icon.png</file>
+        <file>icons/icon_primary_dark.png</file>
+        <file>icons/icon_primary_light.png</file>
+        <file>icons/icon_secondary_dark.png</file>
+        <file>icons/icon_secondary_light.png</file>
+    </qresource>
+</RCC>

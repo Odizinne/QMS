@@ -1,4 +1,2 @@
 build/
-src/__pycache__/
-src/dependencies/monitors.xml
-.venv/
+QMS.pro.user
