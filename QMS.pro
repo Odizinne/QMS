@@ -24,7 +24,7 @@ HEADERS += \
 RESOURCES += \
     src/Resources/resources.qrc \
 
-#RC_FILE = src/Resources/appicon.rc
+RC_FILE = src/Resources/appicon.rc
 
 DEPENDENCIES_DIR = $$PWD/dependencies
 DEST_DIR = $$OUT_PWD/release/dependencies
