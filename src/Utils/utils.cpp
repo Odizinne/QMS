@@ -9,7 +9,7 @@ bool isExternalMonitorEnabled()
     QString executablePath = "dependencies/EnhancedDisplaySwitch.exe";
 
     QProcess process;
-    process.start(executablePath, QStringList() << "--lastmode");
+    process.start(executablePath, QStringList() << "/lastmode");
 
     if (!process.waitForFinished()) {
         qDebug() << "Failed to run the command: " << process.errorString();
@@ -32,9 +32,9 @@ void runEnhancedDisplaySwitch(bool state)
     QStringList arguments;
 
     if (state) {
-        arguments << "--extend";
+        arguments << "/extend";
     } else {
-        arguments << "--internal";
+        arguments << "/internal";
     }
     QProcess process;
     process.start(executablePath, arguments);
@@ -45,6 +45,7 @@ void runEnhancedDisplaySwitch(bool state)
         qDebug() << "Command executed successfully.";
     }
 }
+
 QString getTheme()
 {
     // Determine the theme based on registry value
