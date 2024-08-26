@@ -24,6 +24,8 @@ HEADERS += \
 RESOURCES += \
     src/Resources/resources.qrc \
 
+LIBS += -luser32
+
 RC_FILE = src/Resources/appicon.rc
 
 DEPENDENCIES_DIR = $$PWD/dependencies

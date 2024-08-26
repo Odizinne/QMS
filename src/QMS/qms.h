@@ -1,8 +1,9 @@
 #ifndef QMS_H
 #define QMS_H
 
-#include <QSystemTrayIcon>
 #include <QMainWindow>
+#include <QSystemTrayIcon>
+#include <windows.h>
 
 class QMS : public QMainWindow
 {
@@ -12,12 +13,18 @@ public:
     QMS(QWidget *parent = nullptr);
     ~QMS();
 
-private slots:
-    void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
+protected:
+    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 
 private:
-    bool externalMonitorEnabled();
     void createTrayIcon();
+    void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
+
+    bool registerGlobalHotkey();
+    void unregisterGlobalHotkey();
+
     QSystemTrayIcon *trayIcon;
+    static const int HOTKEY_ID = 1; // ID for the hotkey
 };
+
 #endif // QMS_H

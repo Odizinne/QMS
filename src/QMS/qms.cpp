@@ -4,15 +4,21 @@
 #include <QAction>
 #include <QApplication>
 #include <QIcon>
+#include <QDebug>
 
 QMS::QMS(QWidget *parent)
     : QMainWindow(parent)
     , trayIcon(new QSystemTrayIcon(this))
 {
     createTrayIcon();
+    if (!registerGlobalHotkey()) {
+        qWarning() << "Failed to register global hotkey";
+    }
 }
 
-QMS::~QMS() {}
+QMS::~QMS() {
+    unregisterGlobalHotkey();
+}
 
 void QMS::createTrayIcon()
 {
@@ -37,4 +43,29 @@ void QMS::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
         }
         trayIcon->setIcon(getIcon());
     }
+}
+
+bool QMS::registerGlobalHotkey() {
+    return RegisterHotKey((HWND)this->winId(), HOTKEY_ID, MOD_CONTROL | MOD_ALT, VK_OEM_5);
+}
+
+void QMS::unregisterGlobalHotkey() {
+    UnregisterHotKey((HWND)this->winId(), HOTKEY_ID);
+}
+
+bool QMS::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+{
+    MSG *msg = static_cast<MSG *>(message);
+    if (msg->message == WM_HOTKEY) {
+        if (msg->wParam == HOTKEY_ID) {
+            if (isExternalMonitorEnabled()) {
+                runEnhancedDisplaySwitch(false);
+            } else {
+                runEnhancedDisplaySwitch(true);
+            }
+            trayIcon->setIcon(getIcon());
+            return true;
+        }
+    }
+    return QMainWindow::nativeEvent(eventType, message, result);
 }
