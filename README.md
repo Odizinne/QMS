@@ -13,7 +13,7 @@ One click on/off secondary monitors.
 - Download latest [release](https://github.com/Odizinne/QMS-QuickMonitorSwitcher/releases/latest)
 - Unzip it
 - Run QMS.exe
-- You can now toggle external monitor with a single click on the tray icon
+- You can now toggle external monitor with a single click on the tray icon, or with `ctrl` + `alt` + `\`
 - (Optional) create a shortcut and move it to `shell:startup` to have it autorun on startup
 
 ## To-do
