@@ -5,7 +5,7 @@
 #include <QString>
 
 bool isExternalMonitorEnabled();
-void runEnhancedDisplaySwitch(bool state);
+void runEnhancedDisplaySwitch(bool , int mode);
 QIcon getIcon();
 
 #endif // UTILS_H

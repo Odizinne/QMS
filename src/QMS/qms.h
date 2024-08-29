@@ -4,6 +4,11 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <windows.h>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QDir>
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,15 +27,28 @@ public:
 protected:
     bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 
+private slots:
+    void manageStartupShortcut();
+    void showSettings();
+
 private:
     Ui::QMS *ui;
+    void initUiConnections();
     void createTrayIcon();
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
-
     bool registerGlobalHotkey();
     void unregisterGlobalHotkey();
-
     QSystemTrayIcon *trayIcon;
     static const int HOTKEY_ID = 1;
+
+    QString settingsFilePath;
+    QJsonObject settings;
+    static const QString settingsFile;
+    void loadSettings();
+    void createDefaultSettings();
+    void applySettings();
+    void saveSettings();
+    bool firstRun;
+    void populateComboBox();
 };
 #endif // QMS_H

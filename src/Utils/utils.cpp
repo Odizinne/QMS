@@ -18,20 +18,26 @@ bool isExternalMonitorEnabled()
 
     QString output = process.readAllStandardOutput().trimmed();
 
-    if (output == "extend") {
-        return true;
+    if (output == "internal") {
+        return false;
     }
 
-    return false;
+    return true;
 }
 
-void runEnhancedDisplaySwitch(bool state)
+void runEnhancedDisplaySwitch(bool state, int mode)
 {
     QString executablePath = "dependencies/EnhancedDisplaySwitch.exe";
     QStringList arguments;
 
     if (state) {
-        arguments << "/extend";
+        if (mode == 0) {
+            arguments << "/extend";
+        } else if (mode == 1) {
+            arguments << "/external";
+        } else if (mode == 2) {
+            arguments << "/clone";
+        }
     } else {
         arguments << "/internal";
     }
