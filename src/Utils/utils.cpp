@@ -17,7 +17,6 @@ bool isExternalMonitorEnabled()
     }
 
     QString output = process.readAllStandardOutput().trimmed();
-    qDebug() << "Command output: " << output;
 
     if (output == "extend") {
         return true;
@@ -41,8 +40,6 @@ void runEnhancedDisplaySwitch(bool state)
 
     if (!process.waitForFinished()) {
         qDebug() << "Failed to run the command: " << process.errorString();
-    } else {
-        qDebug() << "Command executed successfully.";
     }
 }
 

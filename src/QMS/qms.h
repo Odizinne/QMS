@@ -5,6 +5,12 @@
 #include <QSystemTrayIcon>
 #include <windows.h>
 
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class QMS;
+}
+QT_END_NAMESPACE
+
 class QMS : public QMainWindow
 {
     Q_OBJECT
@@ -17,6 +23,7 @@ protected:
     bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 
 private:
+    Ui::QMS *ui;
     void createTrayIcon();
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 
@@ -24,7 +31,6 @@ private:
     void unregisterGlobalHotkey();
 
     QSystemTrayIcon *trayIcon;
-    static const int HOTKEY_ID = 1; // ID for the hotkey
+    static const int HOTKEY_ID = 1;
 };
-
 #endif // QMS_H

@@ -1,23 +1,25 @@
 #include "qms.h"
+#include "ui_qms.h"
 #include "utils.h"
 #include <QMenu>
 #include <QAction>
-#include <QApplication>
-#include <QIcon>
-#include <QDebug>
 
 QMS::QMS(QWidget *parent)
     : QMainWindow(parent)
+    , ui(new Ui::QMS)
     , trayIcon(new QSystemTrayIcon(this))
 {
+    ui->setupUi(this);
     createTrayIcon();
     if (!registerGlobalHotkey()) {
         qWarning() << "Failed to register global hotkey";
     }
 }
 
-QMS::~QMS() {
+QMS::~QMS()
+{
     unregisterGlobalHotkey();
+    delete ui;
 }
 
 void QMS::createTrayIcon()
