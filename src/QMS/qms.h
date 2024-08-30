@@ -9,6 +9,7 @@
 #include <QJsonValue>
 #include <QDir>
 #include <QFile>
+#include <QFileSystemWatcher>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,6 +36,7 @@ private:
     Ui::QMS *ui;
     void initUiConnections();
     void createTrayIcon();
+    QFileSystemWatcher *fileWatcher;
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
     bool registerGlobalHotkey();
     void unregisterGlobalHotkey();
@@ -50,5 +52,6 @@ private:
     void saveSettings();
     bool firstRun;
     void populateComboBox();
+    void handleFileChange();
 };
 #endif // QMS_H

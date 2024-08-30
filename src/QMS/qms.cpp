@@ -13,6 +13,7 @@ const QString QMS::settingsFile = QStandardPaths::writableLocation(
 QMS::QMS(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::QMS)
+    , fileWatcher(new QFileSystemWatcher(this))
     , trayIcon(new QSystemTrayIcon(this))
     , firstRun(false)
 {
@@ -22,6 +23,15 @@ QMS::QMS(QWidget *parent)
     initUiConnections();
     createTrayIcon();
     ui->startupCheckBox->setChecked(isShortcutPresent());
+
+    QString appDataRoaming = QDir::homePath() + "/AppData/Roaming";
+    QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
+
+    qDebug() << historyFilePath;
+    fileWatcher->addPath(historyFilePath);
+
+    connect(fileWatcher, &QFileSystemWatcher::fileChanged, this, &QMS::handleFileChange);
+
     if (!registerGlobalHotkey()) {
         qWarning() << "Failed to register global hotkey";
     }
@@ -33,6 +43,7 @@ QMS::QMS(QWidget *parent)
 QMS::~QMS()
 {
     unregisterGlobalHotkey();
+    delete fileWatcher;
     delete ui;
 }
 
@@ -157,4 +168,14 @@ void QMS::saveSettings()
         file.write(doc.toJson(QJsonDocument::Indented));
         file.close();
     }
+}
+
+void QMS::handleFileChange()
+{
+    trayIcon->setIcon(getIcon());
+
+    QString appDataRoaming = QDir::homePath() + "/AppData/Roaming";
+    QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
+
+    fileWatcher->addPath(historyFilePath);
 }
