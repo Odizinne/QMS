@@ -66,6 +66,7 @@ void QMS::createTrayIcon()
     connect(exitAction, &QAction::triggered, this, &QApplication::quit);
     trayMenu->addAction(exitAction);
     trayIcon->setContextMenu(trayMenu);
+    trayIcon->setToolTip("QMS");
     trayIcon->show();
     connect(trayIcon, &QSystemTrayIcon::activated, this, &QMS::trayIconActivated);
 }
