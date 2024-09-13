@@ -3,6 +3,8 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QProcess>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 bool isExternalMonitorEnabled()
 {
@@ -65,4 +67,17 @@ QIcon getIcon()
 {
     QString variant = isExternalMonitorEnabled() ? "secondary_" : "primary_";
     return QIcon(":/icons/icon_" + variant + getTheme() + ".png");
+}
+
+void playNotificationSound(QString audioFile)
+{
+    QMediaPlayer *player = new QMediaPlayer;
+
+    // Create an audio output object for sound
+    QAudioOutput *audioOutput = new QAudioOutput;
+    player->setAudioOutput(audioOutput);
+
+    // Set the media file and play it
+    player->setSource(QUrl::fromLocalFile(audioFile));
+    player->play();
 }

@@ -53,5 +53,6 @@ private:
     bool firstRun;
     void populateComboBox();
     void handleFileChange();
+    void switchScreen();
 };
 #endif // QMS_H

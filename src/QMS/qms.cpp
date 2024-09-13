@@ -51,6 +51,7 @@ void QMS::initUiConnections()
 {
     connect(ui->startupCheckBox, &QCheckBox::stateChanged, this, &QMS::manageStartupShortcut);
     connect(ui->modeComboBox, &QComboBox::currentIndexChanged, this, &QMS::saveSettings);
+    connect(ui->soundCheckBox, &QCheckBox::stateChanged, this, &QMS::saveSettings);
 }
 
 void QMS::createTrayIcon()
@@ -74,12 +75,7 @@ void QMS::createTrayIcon()
 void QMS::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     if (reason == QSystemTrayIcon::Trigger) {
-        if (isExternalMonitorEnabled()) {
-            runEnhancedDisplaySwitch(false, NULL);
-        } else {
-            runEnhancedDisplaySwitch(true, ui->modeComboBox->currentIndex());
-        }
-        trayIcon->setIcon(getIcon());
+        switchScreen();
     }
 }
 
@@ -96,12 +92,7 @@ bool QMS::nativeEvent(const QByteArray &eventType, void *message, qintptr *resul
     MSG *msg = static_cast<MSG *>(message);
     if (msg->message == WM_HOTKEY) {
         if (msg->wParam == HOTKEY_ID) {
-            if (isExternalMonitorEnabled()) {
-                runEnhancedDisplaySwitch(false, NULL);
-            } else {
-                runEnhancedDisplaySwitch(true, ui->modeComboBox->currentIndex());
-            }
-            trayIcon->setIcon(getIcon());
+            switchScreen();
             return true;
         }
     }
@@ -157,11 +148,13 @@ void QMS::createDefaultSettings()
 void QMS::applySettings()
 {
     ui->modeComboBox->setCurrentIndex(settings.value("mode").toInt());
+    ui->soundCheckBox->setChecked(settings.value("audioNotification").toBool());
 }
 
 void QMS::saveSettings()
 {
     settings["mode"] = ui->modeComboBox->currentIndex();
+    settings["audioNotification"] = ui->soundCheckBox->isChecked();
 
     QFile file(settingsFile);
     if (file.open(QIODevice::WriteOnly)) {
@@ -179,4 +172,23 @@ void QMS::handleFileChange()
     QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
 
     fileWatcher->addPath(historyFilePath);
+}
+
+
+void QMS::switchScreen()
+{
+    bool playSound = ui->soundCheckBox->isChecked();
+
+    if (isExternalMonitorEnabled()) {
+        if (playSound) {
+            playNotificationSound("C:\\Windows\\Media\\Windows Hardware Remove.wav");
+        }
+        runEnhancedDisplaySwitch(false, NULL);
+    } else {
+        if (playSound) {
+            playNotificationSound("C:\\Windows\\Media\\Windows Hardware Insert.wav");
+        }
+        runEnhancedDisplaySwitch(true, ui->modeComboBox->currentIndex());
+    }
+    trayIcon->setIcon(getIcon());
 }

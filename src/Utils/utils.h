@@ -5,7 +5,8 @@
 #include <QString>
 
 bool isExternalMonitorEnabled();
-void runEnhancedDisplaySwitch(bool , int mode);
+void runEnhancedDisplaySwitch(bool state, int mode);
+void playNotificationSound(QString audioFile);
 QIcon getIcon();
 
 #endif // UTILS_H
