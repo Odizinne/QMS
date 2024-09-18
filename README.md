@@ -5,7 +5,9 @@
 
 One click on/off secondary monitors.
 
+*Enabled*  
 ![image](assets/tray_icon.png)  
+*Disabled*  
 ![image](assets/tray_icon_off.png)
 
 ## Usage
@@ -14,7 +16,6 @@ One click on/off secondary monitors.
 - Unzip it
 - Run QMS.exe
 - You can now toggle external monitor with a single click on the tray icon, or with `ctrl` + `alt` + `\`
-- (Optional) create a shortcut and move it to `shell:startup` to have it autorun on startup
 
 ## To-do
 
