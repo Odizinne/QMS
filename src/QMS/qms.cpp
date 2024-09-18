@@ -177,15 +177,13 @@ void QMS::handleFileChange()
 
 void QMS::switchScreen()
 {
-    bool playSound = ui->soundCheckBox->isChecked();
-
     if (isExternalMonitorEnabled()) {
-        if (playSound) {
+        if (ui->soundCheckBox->isChecked()) {
             playNotificationSound("C:\\Windows\\Media\\Windows Hardware Remove.wav");
         }
         runEnhancedDisplaySwitch(false, NULL);
     } else {
-        if (playSound) {
+        if (ui->soundCheckBox->isChecked()) {
             playNotificationSound("C:\\Windows\\Media\\Windows Hardware Insert.wav");
         }
         runEnhancedDisplaySwitch(true, ui->modeComboBox->currentIndex());
