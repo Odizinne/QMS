@@ -27,7 +27,6 @@ QMS::QMS(QWidget *parent)
     QString appDataRoaming = QDir::homePath() + "/AppData/Roaming";
     QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
 
-    qDebug() << historyFilePath;
     fileWatcher->addPath(historyFilePath);
 
     connect(fileWatcher, &QFileSystemWatcher::fileChanged, this, &QMS::handleFileChange);

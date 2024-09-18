@@ -60,7 +60,6 @@ QString getTheme()
         QSettings::NativeFormat);
     int value = settings.value("AppsUseLightTheme", 1).toInt();
 
-    // Return the opposite to match icon (dark icon on light theme)
     return (value == 0) ? "light" : "dark";
 }
 
@@ -122,7 +121,7 @@ QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color)
     for (int y = 0; y < img.height(); ++y) {
         for (int x = 0; x < img.width(); ++x) {
             QColor pixelColor = img.pixelColor(x, y);
-            if (pixelColor == QColor(255, 255, 255) || pixelColor == QColor(25, 25, 25)) {
+            if (pixelColor == QColor(255, 255, 255)) {
                 img.setPixelColor(x, y, color);
             }
         }
@@ -133,23 +132,18 @@ QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color)
 
 QIcon getIcon()
 {
-    QString variant = isExternalMonitorEnabled() ? "secondary_" : "primary_";
+    bool secondary = isExternalMonitorEnabled();
     QString theme = getTheme();
-    QString accentColorDark = getAccentColor("dark2");
-    QString accentColorLight = getAccentColor("light3");
-    QPixmap iconPixmap(":/icons/icon_" + variant + theme + ".png");
+    QPixmap iconPixmap(":/icons/tray_icon.png");
 
-    // Get accent color based on theme and icon type
     QColor recolor;
-    if (theme == "light" && variant == "secondary_") {
-        recolor = QColor(getAccentColor("light3"));  // Dark 2 accent color in light theme
-    } else if (theme == "dark" && variant == "secondary_") {
-        qDebug() << "coucou c moi";
-        qDebug() << getAccentColor("dark2");
-        recolor = QColor(getAccentColor("dark2")); // Light 3 accent color in dark theme
+    if (theme == "light" && secondary == true) {
+        recolor = QColor(getAccentColor("light3"));
+    } else if (theme == "dark" && secondary == true) {
+        recolor = QColor(getAccentColor("dark2"));
 
     } else {
-        recolor = (theme == "dark") ? QColor(0, 0, 0) : QColor(255, 255, 255); // Default colors
+        recolor = (theme == "dark") ? QColor(19, 19, 19) : QColor(255, 255, 255);
     }
 
     QPixmap recoloredIcon = recolorIcon(iconPixmap, recolor);
