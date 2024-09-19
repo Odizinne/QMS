@@ -28,7 +28,6 @@ QMS::QMS(QWidget *parent)
     QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
 
     fileWatcher->addPath(historyFilePath);
-
     connect(fileWatcher, &QFileSystemWatcher::fileChanged, this, &QMS::handleFileChange);
 
     if (!registerGlobalHotkey()) {
@@ -79,7 +78,7 @@ void QMS::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 }
 
 bool QMS::registerGlobalHotkey() {
-    return RegisterHotKey((HWND)this->winId(), HOTKEY_ID, MOD_CONTROL | MOD_ALT, VK_OEM_5);
+    return RegisterHotKey((HWND)this->winId(), HOTKEY_ID, MOD_CONTROL | MOD_ALT, VK_HOME);
 }
 
 void QMS::unregisterGlobalHotkey() {
@@ -97,6 +96,7 @@ bool QMS::nativeEvent(const QByteArray &eventType, void *message, qintptr *resul
     }
     return QMainWindow::nativeEvent(eventType, message, result);
 }
+
 
 void QMS::manageStartupShortcut()
 {

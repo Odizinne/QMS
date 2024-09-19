@@ -17,6 +17,11 @@ One click on/off secondary monitors.
 - Run QMS.exe
 - You can now toggle external monitor with a single click on the tray icon, or with `ctrl` + `alt` + `\`
 
+Modes:
+- Extend: Main display and secondary display
+- External: Secondary display only
+- Clone: Same image on all display
+
 ## To-do
 
 - Reimplement ddcci support with UI  
