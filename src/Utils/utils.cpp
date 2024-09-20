@@ -117,6 +117,7 @@ QString getAccentColor(const QString &accentKey)
 QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color, bool secondary)
 {
     QImage img = originalIcon.toImage();
+    QColor roundedEdgesColor(color.red(), color.green(), color.blue(), color.alpha() / 3);
 
     if (!secondary) {
         QColor transparentColor(255, 255, 255, 0);
@@ -125,6 +126,9 @@ QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color, bool secon
                 QColor pixelColor = img.pixelColor(x, y);
                 if (pixelColor == QColor(0, 0, 0)) {
                     img.setPixelColor(x, y, transparentColor);
+                }
+                if (pixelColor == QColor(127, 127, 127)) {
+                    img.setPixelColor(x, y, roundedEdgesColor);
                 }
             }
         }
@@ -135,6 +139,9 @@ QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color, bool secon
             QColor pixelColor = img.pixelColor(x, y);
             if (pixelColor == QColor(255, 255, 255) || pixelColor == QColor(0, 0, 0)) {
                 img.setPixelColor(x, y, color);
+            }
+            if (pixelColor == QColor(127, 127, 127)) {
+                img.setPixelColor(x, y, roundedEdgesColor);
             }
         }
     }
