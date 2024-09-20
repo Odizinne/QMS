@@ -1,7 +1,5 @@
 #include "qms.h"
-#include "ui_qms.h"
 #include "utils.h"
-#include "shortcutmanager.h"
 #include <QMenu>
 #include <QAction>
 #include <QStandardPaths>
@@ -11,18 +9,15 @@ const QString QMS::settingsFile = QStandardPaths::writableLocation(
                                            + "/QMS/settings.json";
 
 QMS::QMS(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::QMS)
+    : QWidget(parent)
+    , configurator(nullptr)
     , fileWatcher(new QFileSystemWatcher(this))
     , trayIcon(new QSystemTrayIcon(this))
     , firstRun(false)
 {
-    ui->setupUi(this);
-    populateComboBox();
     loadSettings();
-    initUiConnections();
     createTrayIcon();
-    ui->startupCheckBox->setChecked(isShortcutPresent());
+
 
     QString appDataRoaming = QDir::homePath() + "/AppData/Roaming";
     QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
@@ -42,13 +37,6 @@ QMS::~QMS()
 {
     unregisterGlobalHotkey();
     delete fileWatcher;
-    delete ui;
-}
-
-void QMS::initUiConnections()
-{
-    connect(ui->startupCheckBox, &QCheckBox::stateChanged, this, &QMS::manageStartupShortcut);
-    connect(ui->modeComboBox, &QComboBox::currentIndexChanged, this, &QMS::saveSettings);
 }
 
 void QMS::createTrayIcon()
@@ -93,26 +81,30 @@ bool QMS::nativeEvent(const QByteArray &eventType, void *message, qintptr *resul
             return true;
         }
     }
-    return QMainWindow::nativeEvent(eventType, message, result);
-}
-
-
-void QMS::manageStartupShortcut()
-{
-    manageShortcut(ui->startupCheckBox->isChecked());
+    return QWidget::nativeEvent(eventType, message, result);
 }
 
 void QMS::showSettings()
 {
-    this->show();
+    if (configurator) {
+        configurator->showNormal();
+        configurator->raise();
+        configurator->activateWindow();
+        return;
+    }
+
+    configurator = new Configurator;
+    configurator->setAttribute(Qt::WA_DeleteOnClose);
+    connect(configurator, &Configurator::closed, this, &QMS::onConfiguratorClosed);
+    configurator->show();
 }
 
-void QMS::populateComboBox()
+void QMS::onConfiguratorClosed()
 {
-    ui->modeComboBox->addItem(tr("Extend"));
-    ui->modeComboBox->addItem(tr("External"));
-    ui->modeComboBox->addItem(tr("Clone"));
+    configurator = nullptr;
+    loadSettings();
 }
+
 void QMS::loadSettings()
 {
     QDir settingsDir(QFileInfo(settingsFile).absolutePath());
@@ -122,7 +114,7 @@ void QMS::loadSettings()
 
     QFile file(settingsFile);
     if (!file.exists()) {
-        createDefaultSettings();
+        showSettings();
 
     } else {
         if (file.open(QIODevice::ReadOnly)) {
@@ -130,33 +122,10 @@ void QMS::loadSettings()
             QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
             if (parseError.error == QJsonParseError::NoError) {
                 settings = doc.object();
+                screenMode = settings.value("mode").toInt();
             }
             file.close();
         }
-    }
-    applySettings();
-}
-
-void QMS::createDefaultSettings()
-{
-    firstRun = true;
-    saveSettings();
-}
-
-void QMS::applySettings()
-{
-    ui->modeComboBox->setCurrentIndex(settings.value("mode").toInt());
-}
-
-void QMS::saveSettings()
-{
-    settings["mode"] = ui->modeComboBox->currentIndex();
-
-    QFile file(settingsFile);
-    if (file.open(QIODevice::WriteOnly)) {
-        QJsonDocument doc(settings);
-        file.write(doc.toJson(QJsonDocument::Indented));
-        file.close();
     }
 }
 
@@ -170,13 +139,12 @@ void QMS::handleFileChange()
     fileWatcher->addPath(historyFilePath);
 }
 
-
 void QMS::switchScreen()
 {
     if (isExternalMonitorEnabled()) {
         runEnhancedDisplaySwitch(false, NULL);
     } else {
-        runEnhancedDisplaySwitch(true, ui->modeComboBox->currentIndex());
+        runEnhancedDisplaySwitch(true, screenMode);
     }
     trayIcon->setIcon(getIcon());
 }

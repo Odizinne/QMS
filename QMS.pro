@@ -11,21 +11,24 @@ CONFIG += c++17
 INCLUDEPATH += \
     src/QMS \
     src/Utils \
-    src/ShortcutManager
+    src/ShortcutManager \
+    src/Configurator
 
 SOURCES += \
+    src/Configurator/configurator.cpp \
     src/ShortcutManager/shortcutmanager.cpp \
     src/main.cpp \
     src/QMS/qms.cpp \
     src/Utils/utils.cpp \
 
 HEADERS += \
+    src/Configurator/configurator.h \
     src/QMS/qms.h \
     src/ShortcutManager/shortcutmanager.h \
     src/Utils/utils.h \
 
 FORMS += \
-    src/QMS/qms.ui
+    src/Configurator/configurator.ui \
 
 RESOURCES += \
     src/Resources/resources.qrc \

@@ -1,7 +1,7 @@
 #ifndef QMS_H
 #define QMS_H
 
-#include <QMainWindow>
+#include <QApplication>
 #include <QSystemTrayIcon>
 #include <windows.h>
 #include <QJsonDocument>
@@ -10,14 +10,15 @@
 #include <QDir>
 #include <QFile>
 #include <QFileSystemWatcher>
+#include "configurator.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class QMS;
+class Configurator;
 }
 QT_END_NAMESPACE
 
-class QMS : public QMainWindow
+class QMS : public QWidget
 {
     Q_OBJECT
 
@@ -29,12 +30,11 @@ protected:
     bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 
 private slots:
-    void manageStartupShortcut();
     void showSettings();
 
 private:
-    Ui::QMS *ui;
-    void initUiConnections();
+    Configurator* configurator;
+    int screenMode;
     void createTrayIcon();
     QFileSystemWatcher *fileWatcher;
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -43,15 +43,12 @@ private:
     QSystemTrayIcon *trayIcon;
     static const int HOTKEY_ID = 1;
 
-    QString settingsFilePath;
     QJsonObject settings;
     static const QString settingsFile;
     void loadSettings();
-    void createDefaultSettings();
-    void applySettings();
-    void saveSettings();
+    void onConfiguratorClosed();
     bool firstRun;
-    void populateComboBox();
+
     void handleFileChange();
     void switchScreen();
 };
