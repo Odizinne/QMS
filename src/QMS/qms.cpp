@@ -18,7 +18,6 @@ QMS::QMS(QWidget *parent)
     loadSettings();
     createTrayIcon();
 
-
     QString appDataRoaming = QDir::homePath() + "/AppData/Roaming";
     QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
 

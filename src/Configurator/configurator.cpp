@@ -15,6 +15,7 @@ Configurator::Configurator(QWidget *parent)
 {
     ui->setupUi(this);
     populateComboBox();
+    loadSettings();
     ui->startupCheckBox->setChecked(isShortcutPresent());
 }
 
