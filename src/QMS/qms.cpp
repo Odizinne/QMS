@@ -36,6 +36,7 @@ QMS::QMS(QWidget *parent)
 QMS::~QMS()
 {
     unregisterGlobalHotkey();
+    delete configurator;
     delete fileWatcher;
 }
 
