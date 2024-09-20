@@ -49,7 +49,6 @@ void QMS::initUiConnections()
 {
     connect(ui->startupCheckBox, &QCheckBox::stateChanged, this, &QMS::manageStartupShortcut);
     connect(ui->modeComboBox, &QComboBox::currentIndexChanged, this, &QMS::saveSettings);
-    connect(ui->soundCheckBox, &QCheckBox::stateChanged, this, &QMS::saveSettings);
 }
 
 void QMS::createTrayIcon()
@@ -147,13 +146,11 @@ void QMS::createDefaultSettings()
 void QMS::applySettings()
 {
     ui->modeComboBox->setCurrentIndex(settings.value("mode").toInt());
-    ui->soundCheckBox->setChecked(settings.value("audioNotification").toBool());
 }
 
 void QMS::saveSettings()
 {
     settings["mode"] = ui->modeComboBox->currentIndex();
-    settings["audioNotification"] = ui->soundCheckBox->isChecked();
 
     QFile file(settingsFile);
     if (file.open(QIODevice::WriteOnly)) {
@@ -177,14 +174,8 @@ void QMS::handleFileChange()
 void QMS::switchScreen()
 {
     if (isExternalMonitorEnabled()) {
-        if (ui->soundCheckBox->isChecked()) {
-            playNotificationSound("C:\\Windows\\Media\\Windows Hardware Remove.wav");
-        }
         runEnhancedDisplaySwitch(false, NULL);
     } else {
-        if (ui->soundCheckBox->isChecked()) {
-            playNotificationSound("C:\\Windows\\Media\\Windows Hardware Insert.wav");
-        }
         runEnhancedDisplaySwitch(true, ui->modeComboBox->currentIndex());
     }
     trayIcon->setIcon(getIcon());

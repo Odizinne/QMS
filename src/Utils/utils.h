@@ -6,7 +6,6 @@
 
 bool isExternalMonitorEnabled();
 void runEnhancedDisplaySwitch(bool state, int mode);
-void playNotificationSound(QString audioFile);
 QIcon getIcon();
 
 #endif // UTILS_H
