@@ -114,25 +114,10 @@ QString getAccentColor(const QString &accentKey)
     return "#FFFFFF";
 }
 
-QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color, bool secondary)
+QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color)
 {
     QImage img = originalIcon.toImage();
     QColor roundedEdgesColor(color.red(), color.green(), color.blue(), color.alpha() / 3);
-
-    if (!secondary) {
-        QColor transparentColor(255, 255, 255, 0);
-        for (int y = 0; y < img.height(); ++y) {
-            for (int x = 0; x < img.width(); ++x) {
-                QColor pixelColor = img.pixelColor(x, y);
-                if (pixelColor == QColor(0, 0, 0)) {
-                    img.setPixelColor(x, y, transparentColor);
-                }
-                if (pixelColor == QColor(127, 127, 127)) {
-                    img.setPixelColor(x, y, roundedEdgesColor);
-                }
-            }
-        }
-    }
 
     for (int y = 0; y < img.height(); ++y) {
         for (int x = 0; x < img.width(); ++x) {
@@ -165,7 +150,7 @@ QIcon getIcon()
         recolor = (theme == "dark") ? QColor(19, 19, 19) : QColor(255, 255, 255);
     }
 
-    QPixmap recoloredIcon = recolorIcon(iconPixmap, recolor, secondary);
+    QPixmap recoloredIcon = recolorIcon(iconPixmap, recolor);
 
     return QIcon(recoloredIcon);
 }
