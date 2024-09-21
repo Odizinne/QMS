@@ -4,6 +4,7 @@
 #include <QStandardPaths>
 #include <QDir>
 
+using namespace ShortcutManager;
 const QString Configurator::settingsFile = QStandardPaths::writableLocation(
                                       QStandardPaths::AppDataLocation)
                                   + "/QMS/settings.json";
@@ -16,6 +17,7 @@ Configurator::Configurator(QWidget *parent)
     ui->setupUi(this);
     populateComboBox();
     loadSettings();
+    initUiConnections();
     ui->startupCheckBox->setChecked(isShortcutPresent());
 }
 

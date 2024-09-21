@@ -5,7 +5,7 @@
 #include <QDir>
 #include <QProcess>
 
-bool isExternalMonitorEnabled()
+bool Utils::isExternalMonitorEnabled()
 {
     QString executablePath = "dependencies/EnhancedDisplaySwitch.exe";
 
@@ -26,7 +26,7 @@ bool isExternalMonitorEnabled()
     return true;
 }
 
-void runEnhancedDisplaySwitch(bool state, int mode)
+void Utils::runEnhancedDisplaySwitch(bool state, int mode)
 {
     QString executablePath = "dependencies/EnhancedDisplaySwitch.exe";
     QStringList arguments;
@@ -98,7 +98,7 @@ QString getAccentColor(const QString &accentKey)
             QString blue = toHex(accentPalette[index + 2]);
 
             // Return the hex color code
-            return QString("#%1%2%3").arg(red).arg(green).arg(blue);
+            return QString("#%1%2%3").arg(red, green, blue);
         } else {
             qDebug() << "Failed to retrieve AccentPalette from the registry.";
         }
@@ -132,9 +132,9 @@ QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color)
     return QPixmap::fromImage(img);
 }
 
-QIcon getIcon()
+QIcon Utils::getIcon()
 {
-    bool secondary = isExternalMonitorEnabled();
+    bool secondary = Utils::isExternalMonitorEnabled();
     QString theme = getTheme();
     QPixmap iconPixmap(":/icons/tray_icon.png");
 

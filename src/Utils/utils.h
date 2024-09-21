@@ -4,8 +4,11 @@
 #include <QIcon>
 #include <QString>
 
-bool isExternalMonitorEnabled();
-void runEnhancedDisplaySwitch(bool state, int mode);
-QIcon getIcon();
+namespace Utils {
+
+    bool isExternalMonitorEnabled();
+    void runEnhancedDisplaySwitch(bool state, int mode);
+    QIcon getIcon();
+}
 
 #endif // UTILS_H

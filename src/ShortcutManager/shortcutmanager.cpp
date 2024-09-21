@@ -1,10 +1,11 @@
+#include "shortcutmanager.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QShortcut>
 #include <QStandardPaths>
 
-void manageShortcut(bool state)
+void ShortcutManager::manageShortcut(bool state)
 {
     QString shortcutName = "QMS.lnk";
     QString applicationPath = QCoreApplication::applicationFilePath();
@@ -18,7 +19,7 @@ void manageShortcut(bool state)
     }
 }
 
-bool isShortcutPresent()
+bool ShortcutManager::isShortcutPresent()
 {
     QString shortcutName = "QMS.lnk";
     QString startupPath = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation) + QDir::separator() + "Startup";

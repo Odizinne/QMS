@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QStandardPaths>
 
+using namespace Utils;
 const QString QMS::settingsFile = QStandardPaths::writableLocation(
                                                QStandardPaths::AppDataLocation)
                                            + "/QMS/settings.json";
