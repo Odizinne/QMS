@@ -35,7 +35,7 @@ RESOURCES += \
 
 RC_FILE = src/Resources/appicon.rc
 
-LIBS += -luser32 -ladvapi32
+LIBS += -luser32 -ladvapi32 -lwinmm
 
 DEPENDENCIES_DIR = $$PWD/dependencies
 DEST_DIR = $$OUT_PWD/release/dependencies

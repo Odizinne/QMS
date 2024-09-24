@@ -35,6 +35,7 @@ private slots:
 private:
     Configurator* configurator;
     int screenMode;
+    bool playNotification;
     void createTrayIcon();
     QFileSystemWatcher *fileWatcher;
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);

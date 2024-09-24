@@ -63,6 +63,7 @@ void Configurator::loadSettings()
             if (parseError.error == QJsonParseError::NoError) {
                 settings = doc.object();
                 ui->modeComboBox->setCurrentIndex(settings.value("mode").toInt());
+                ui->notificationCheckBox->setChecked(settings.value("notification").toBool());
             }
             file.close();
         }
@@ -72,6 +73,7 @@ void Configurator::loadSettings()
 void Configurator::saveSettings()
 {
     settings["mode"] = ui->modeComboBox->currentIndex();
+    settings["notification"] = ui->notificationCheckBox->isChecked();
 
     QFile file(settingsFile);
     if (file.open(QIODevice::WriteOnly)) {

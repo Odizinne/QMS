@@ -8,6 +8,7 @@ namespace Utils {
 
     bool isExternalMonitorEnabled();
     void runEnhancedDisplaySwitch(bool state, int mode);
+    void playSoundNotification(bool enabled);
     QIcon getIcon();
 }
 

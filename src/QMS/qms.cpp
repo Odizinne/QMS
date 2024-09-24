@@ -124,6 +124,7 @@ void QMS::loadSettings()
             if (parseError.error == QJsonParseError::NoError) {
                 settings = doc.object();
                 screenMode = settings.value("mode").toInt();
+                playNotification = settings.value("notification").toBool();
             }
             file.close();
         }
@@ -144,8 +145,14 @@ void QMS::switchScreen()
 {
     if (isExternalMonitorEnabled()) {
         runEnhancedDisplaySwitch(false, NULL);
+        if (playNotification) {
+            playSoundNotification(false);
+        }
     } else {
         runEnhancedDisplaySwitch(true, screenMode);
+        if (playNotification) {
+            playSoundNotification(true);
+        }
     }
     trayIcon->setIcon(getIcon());
 }

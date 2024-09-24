@@ -152,3 +152,16 @@ QIcon Utils::getIcon()
 
     return QIcon(recoloredIcon);
 }
+
+void Utils::playSoundNotification(bool enabled)
+{
+    const wchar_t* soundFile;
+
+    if (enabled) {
+        soundFile = L"C:\\Windows\\Media\\Windows Hardware Insert.wav";
+    } else {
+        soundFile = L"C:\\Windows\\Media\\Windows Hardware Remove.wav";
+    }
+
+    PlaySound(soundFile, NULL, SND_FILENAME | SND_ASYNC);
+}
