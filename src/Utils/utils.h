@@ -9,6 +9,7 @@ namespace Utils {
     bool isExternalMonitorEnabled();
     void runEnhancedDisplaySwitch(bool state, int mode);
     void playSoundNotification(bool enabled);
+    bool isWindows10();
     QIcon getIcon();
 }
 
