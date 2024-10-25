@@ -5,15 +5,13 @@
 #include <QStandardPaths>
 
 using namespace Utils;
-const QString QMS::settingsFile = QStandardPaths::writableLocation(
-                                               QStandardPaths::AppDataLocation)
-                                           + "/QMS/settings.json";
 
 QMS::QMS(QWidget *parent)
     : QWidget(parent)
     , configurator(nullptr)
     , fileWatcher(new QFileSystemWatcher(this))
     , trayIcon(new QSystemTrayIcon(this))
+    , settings("Odizinne", "QMS")
     , firstRun(false)
 {
     loadSettings();
@@ -108,27 +106,8 @@ void QMS::onConfiguratorClosed()
 
 void QMS::loadSettings()
 {
-    QDir settingsDir(QFileInfo(settingsFile).absolutePath());
-    if (!settingsDir.exists()) {
-        settingsDir.mkpath(settingsDir.absolutePath());
-    }
-
-    QFile file(settingsFile);
-    if (!file.exists()) {
-        showSettings();
-
-    } else {
-        if (file.open(QIODevice::ReadOnly)) {
-            QJsonParseError parseError;
-            QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
-            if (parseError.error == QJsonParseError::NoError) {
-                settings = doc.object();
-                screenMode = settings.value("mode").toInt();
-                playNotification = settings.value("notification").toBool();
-            }
-            file.close();
-        }
-    }
+    screenMode = settings.value("mode", 0).toInt();
+    playNotification = settings.value("notification", true).toBool();
 }
 
 void QMS::handleFileChange()

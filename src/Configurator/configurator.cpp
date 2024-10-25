@@ -5,14 +5,12 @@
 #include <QDir>
 
 using namespace ShortcutManager;
-const QString Configurator::settingsFile = QStandardPaths::writableLocation(
-                                      QStandardPaths::AppDataLocation)
-                                  + "/QMS/settings.json";
 
 Configurator::Configurator(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Configurator)
     , firstRun(false)
+    , settings("Odizinne", "QMS")
 {
     ui->setupUi(this);
     populateComboBox();
@@ -47,40 +45,14 @@ void Configurator::manageStartupShortcut()
 
 void Configurator::loadSettings()
 {
-    QDir settingsDir(QFileInfo(settingsFile).absolutePath());
-    if (!settingsDir.exists()) {
-        settingsDir.mkpath(settingsDir.absolutePath());
-    }
-
-    QFile file(settingsFile);
-    if (!file.exists()) {
-        createDefaultSettings();
-
-    } else {
-        if (file.open(QIODevice::ReadOnly)) {
-            QJsonParseError parseError;
-            QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
-            if (parseError.error == QJsonParseError::NoError) {
-                settings = doc.object();
-                ui->modeComboBox->setCurrentIndex(settings.value("mode").toInt());
-                ui->notificationCheckBox->setChecked(settings.value("notification").toBool());
-            }
-            file.close();
-        }
-    }
+    ui->modeComboBox->setCurrentIndex(settings.value("mode", 0).toInt());
+    ui->notificationCheckBox->setChecked(settings.value("notification", true).toBool());
 }
 
 void Configurator::saveSettings()
 {
-    settings["mode"] = ui->modeComboBox->currentIndex();
-    settings["notification"] = ui->notificationCheckBox->isChecked();
-
-    QFile file(settingsFile);
-    if (file.open(QIODevice::WriteOnly)) {
-        QJsonDocument doc(settings);
-        file.write(doc.toJson(QJsonDocument::Indented));
-        file.close();
-    }
+    settings.setValue("mode", ui->modeComboBox->currentIndex());
+    settings.setValue("notification", ui->notificationCheckBox->isChecked());
 }
 
 void Configurator::createDefaultSettings()

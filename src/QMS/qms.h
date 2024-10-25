@@ -4,12 +4,10 @@
 #include <QApplication>
 #include <QSystemTrayIcon>
 #include <windows.h>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonValue>
 #include <QDir>
 #include <QFile>
 #include <QFileSystemWatcher>
+#include <QSettings>
 #include "configurator.h"
 
 QT_BEGIN_NAMESPACE
@@ -44,8 +42,7 @@ private:
     QSystemTrayIcon *trayIcon;
     static const int HOTKEY_ID = 1;
 
-    QJsonObject settings;
-    static const QString settingsFile;
+    QSettings settings;
     void loadSettings();
     void onConfiguratorClosed();
     bool firstRun;

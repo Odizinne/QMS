@@ -2,9 +2,7 @@
 #define CONFIGURATOR_H
 
 #include <QMainWindow>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonValue>
+#include <QSettings>
 #include <QFile>
 
 namespace Ui {
@@ -25,9 +23,8 @@ private slots:
 
 private:
     Ui::Configurator *ui;
-    QJsonObject settings;
-    static const QString settingsFile;
     bool firstRun;
+    QSettings settings;
 
     void populateComboBox();
     void loadSettings();
