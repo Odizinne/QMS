@@ -9,19 +9,12 @@ using namespace Utils;
 QMS::QMS(QWidget *parent)
     : QWidget(parent)
     , configurator(nullptr)
-    , fileWatcher(new QFileSystemWatcher(this))
     , trayIcon(new QSystemTrayIcon(this))
     , settings("Odizinne", "QMS")
     , firstRun(false)
 {
     loadSettings();
     createTrayIcon();
-
-    QString appDataRoaming = QDir::homePath() + "/AppData/Roaming";
-    QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
-
-    fileWatcher->addPath(historyFilePath);
-    connect(fileWatcher, &QFileSystemWatcher::fileChanged, this, &QMS::handleFileChange);
 
     if (!registerGlobalHotkey()) {
         qWarning() << "Failed to register global hotkey";
@@ -35,7 +28,6 @@ QMS::~QMS()
 {
     unregisterGlobalHotkey();
     delete configurator;
-    delete fileWatcher;
 }
 
 void QMS::createTrayIcon()
@@ -108,16 +100,6 @@ void QMS::loadSettings()
 {
     screenMode = settings.value("mode", 0).toInt();
     playNotification = settings.value("notification", true).toBool();
-}
-
-void QMS::handleFileChange()
-{
-    trayIcon->setIcon(getIcon());
-
-    QString appDataRoaming = QDir::homePath() + "/AppData/Roaming";
-    QString historyFilePath = appDataRoaming + "/EnhancedDisplaySwitch/history.txt";
-
-    fileWatcher->addPath(historyFilePath);
 }
 
 void QMS::switchScreen()

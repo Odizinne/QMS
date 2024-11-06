@@ -35,7 +35,6 @@ private:
     int screenMode;
     bool playNotification;
     void createTrayIcon();
-    QFileSystemWatcher *fileWatcher;
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
     bool registerGlobalHotkey();
     void unregisterGlobalHotkey();
@@ -46,8 +45,6 @@ private:
     void loadSettings();
     void onConfiguratorClosed();
     bool firstRun;
-
-    void handleFileChange();
     void switchScreen();
 };
 #endif // QMS_H
