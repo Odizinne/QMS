@@ -15,25 +15,25 @@ jobs:
         with:
           submodules: true
 
-      #- name: Clean up EnhancedDisplaySwitch folder
-      #  shell: pwsh
-      #  run: |
-      #    $folderPath = "Dependencies/EnhancedDisplaySwitch"
-      #    
-      #    # Get all files in the folder, excluding the specified ones (EnhancedDisplaySwitch.cpp and EnhancedDisplaySwitch.h)
-      #    $filesToDelete = Get-ChildItem -Path $folderPath -Recurse | Where-Object { 
-      #        $_.PSIsContainer -eq $false -and $_.Name -notin @("EnhancedDisplaySwitch.cpp", "EnhancedDisplaySwitch.h")
-      #    }
-      #    
-      #    # Delete the files
-      #    foreach ($file in $filesToDelete) {
-      #        if ($file -ne $null) {
-      #            Remove-Item -Path $file.FullName -Force
-      #            Write-Host "Deleted file: $($file.FullName)"
-      #        }
-      #    }
-#
-      #    Write-Host "Clean-up complete. Only EnhancedDisplaySwitch.cpp and EnhancedDisplaySwitch.h remain."
+      - name: Clean up EnhancedDisplaySwitch folder
+        shell: pwsh
+        run: |
+          $folderPath = "Dependencies/EnhancedDisplaySwitch"
+          
+          # Get all files in the folder, excluding the specified ones (EnhancedDisplaySwitch.cpp and EnhancedDisplaySwitch.h)
+          $filesToDelete = Get-ChildItem -Path $folderPath -Recurse | Where-Object { 
+              $_.PSIsContainer -eq $false -and $_.Name -notin @("EnhancedDisplaySwitch.cpp", "EnhancedDisplaySwitch.h")
+          }
+          
+          # Delete the files
+          foreach ($file in $filesToDelete) {
+              if ($file -ne $null) {
+                  Remove-Item -Path $file.FullName -Force
+                  Write-Host "Deleted file: $($file.FullName)"
+              }
+          }
+
+          Write-Host "Clean-up complete. Only EnhancedDisplaySwitch.cpp and EnhancedDisplaySwitch.h remain."
 
       - name: Set up Visual Studio shell
         uses: egor-tensin/vs-shell@v2
