@@ -17,7 +17,9 @@ qt_add_executable(QMS WIN32 MACOSX_BUNDLE
     ShortcutManager/ShortcutManager.cpp ShortcutManager/ShortcutManager.h
     Utils/Utils.cpp Utils/Utils.h
     main.cpp
+    Resources/appicon.rc
 )
+
 target_include_directories(QMS PRIVATE
     Configurator
     QMS
@@ -55,14 +57,3 @@ if((QT_VERSION_MAJOR GREATER 4))
     )
 endif()
 
-install(TARGETS QMS
-    BUNDLE DESTINATION .
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
-
-qt_generate_deploy_app_script(
-    TARGET QMS
-    FILENAME_VARIABLE deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR
-)
-install(SCRIPT ${deploy_script})
