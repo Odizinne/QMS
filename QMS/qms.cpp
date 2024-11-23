@@ -1,6 +1,6 @@
 #include "QMS.h"
 #include "Utils.h"
-#include "EnhancedDisplaySwitch.h"
+#include "Dependencies/EnhancedDisplaySwitch/EnhancedDisplaySwitch.h"
 #include <QMenu>
 #include <QAction>
 #include <QStandardPaths>

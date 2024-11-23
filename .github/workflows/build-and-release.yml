@@ -13,6 +13,26 @@ jobs:
         with:
           submodules: true
 
+      - name: Clean up EnhancedDisplaySwitch folder
+        shell: pwsh
+        run: |
+          $folderPath = "Dependencies/EnhancedDisplaySwitch"
+          
+          # Get all files in the folder, excluding the specified ones (EnhancedDisplaySwitch.cpp and EnhancedDisplaySwitch.h)
+          $filesToDelete = Get-ChildItem -Path $folderPath -Recurse | Where-Object { 
+              $_.PSIsContainer -eq $false -and $_.Name -notin @("EnhancedDisplaySwitch.cpp", "EnhancedDisplaySwitch.h")
+          }
+          
+          # Delete the files
+          foreach ($file in $filesToDelete) {
+              if ($file -ne $null) {
+                  Remove-Item -Path $file.FullName -Force
+                  Write-Host "Deleted file: $($file.FullName)"
+              }
+          }
+
+          Write-Host "Clean-up complete. Only EnhancedDisplaySwitch.cpp and EnhancedDisplaySwitch.h remain."
+
       - name: Set up Visual Studio shell
         uses: egor-tensin/vs-shell@v2
         with:
@@ -21,7 +41,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.7.2'
+          version: '6.8.0'
           add-tools-to-path: true
           cache: true
 
@@ -70,7 +90,7 @@ jobs:
         shell: pwsh
         run: |
           cd build
-          $windeployqtPath = "D:\a\QMS\Qt\6.7.2\msvc2019_64\bin\windeployqt6.exe"
+          $windeployqtPath = "D:\a\QMS\Qt\6.8.0\msvc2022_64\bin\windeployqt6.exe"
           if (Test-Path $windeployqtPath) {
               & $windeployqtPath `
                   --exclude-plugins qsvgicon,qsvg,qico,qjpeg,qgif,qnetworklistmanager,qtuiotouchplugin `

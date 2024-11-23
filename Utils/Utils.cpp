@@ -1,55 +1,10 @@
 #include "Utils.h"
-#include "EnhancedDisplaySwitch.h"
+#include "Dependencies/EnhancedDisplaySwitch/EnhancedDisplaySwitch.h"
 #include <windows.h>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDir>
 #include <QProcess>
-
-bool Utils::isExternalMonitorEnabled()
-{
-    QString executablePath = "dependencies/EnhancedDisplaySwitch.exe";
-
-    QProcess process;
-    process.start(executablePath, QStringList() << "/lastmode");
-
-    if (!process.waitForFinished()) {
-        qDebug() << "Failed to run the command: " << process.errorString();
-        return false;
-    }
-
-    QString output = process.readAllStandardOutput().trimmed();
-
-    if (output == "internal") {
-        return false;
-    }
-
-    return true;
-}
-
-void Utils::runEnhancedDisplaySwitch(bool state, int mode)
-{
-    QString executablePath = "dependencies/EnhancedDisplaySwitch.exe";
-    QStringList arguments;
-
-    if (state) {
-        if (mode == 0) {
-            arguments << "/extend";
-        } else if (mode == 1) {
-            arguments << "/external";
-        } else if (mode == 2) {
-            arguments << "/clone";
-        }
-    } else {
-        arguments << "/internal";
-    }
-    QProcess process;
-    process.start(executablePath, arguments);
-
-    if (!process.waitForFinished()) {
-        qDebug() << "Failed to run the command: " << process.errorString();
-    }
-}
 
 QString getTheme()
 {

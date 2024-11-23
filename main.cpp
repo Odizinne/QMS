@@ -2,12 +2,12 @@
 #include "Utils.h"
 #include <QApplication>
 
-using namespace Utils;
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setQuitOnLastWindowClosed(false);
-    if (isWindows10()) {
+    if (Utils::isWindows10()) {
         a.setStyle("fusion");
     }
     QMS w;
