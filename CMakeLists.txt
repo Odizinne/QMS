@@ -13,7 +13,6 @@ qt_standard_project_setup()
 qt_add_executable(QMS WIN32 MACOSX_BUNDLE
     Configurator/Configurator.cpp Configurator/Configurator.h Configurator/Configurator.ui
     Dependencies/EnhancedDisplaySwitch/EnhancedDisplaySwitch.cpp Dependencies/EnhancedDisplaySwitch/EnhancedDisplaySwitch.h
-    Dependencies/EnhancedDisplaySwitch/main.cpp
     QMS/QMS.cpp QMS/QMS.h
     ShortcutManager/ShortcutManager.cpp ShortcutManager/ShortcutManager.h
     Utils/Utils.cpp Utils/Utils.h
