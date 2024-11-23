@@ -1,10 +1,8 @@
-#include "configurator.h"
-#include "ui_configurator.h"
-#include "shortcutmanager.h"
+#include "Configurator.h"
+#include "ui_Configurator.h"
+#include "ShortcutManager.h"
 #include <QStandardPaths>
 #include <QDir>
-
-using namespace ShortcutManager;
 
 Configurator::Configurator(QWidget *parent)
     : QMainWindow(parent)
@@ -16,7 +14,7 @@ Configurator::Configurator(QWidget *parent)
     populateComboBox();
     loadSettings();
     initUiConnections();
-    ui->startupCheckBox->setChecked(isShortcutPresent());
+    ui->startupCheckBox->setChecked(ShortcutManager::isShortcutPresent());
 }
 
 Configurator::~Configurator()
@@ -28,9 +26,9 @@ Configurator::~Configurator()
 
 void Configurator::populateComboBox()
 {
+    ui->modeComboBox->addItem(tr("Clone"));
     ui->modeComboBox->addItem(tr("Extend"));
     ui->modeComboBox->addItem(tr("External"));
-    ui->modeComboBox->addItem(tr("Clone"));
 }
 
 void Configurator::initUiConnections()
@@ -40,7 +38,7 @@ void Configurator::initUiConnections()
 
 void Configurator::manageStartupShortcut()
 {
-    manageShortcut(ui->startupCheckBox->isChecked());
+    ShortcutManager::manageShortcut(ui->startupCheckBox->isChecked());
 }
 
 void Configurator::loadSettings()

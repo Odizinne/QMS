@@ -1,0 +1,3 @@
+[submodule "Dependencies/EnhancedDisplaySwitch"]
+	path = Dependencies/EnhancedDisplaySwitch
+	url = git@github.com:Odizinne/EnhancedDisplaySwitch.git

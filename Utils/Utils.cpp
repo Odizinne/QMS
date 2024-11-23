@@ -1,4 +1,5 @@
-#include "utils.h"
+#include "Utils.h"
+#include "EnhancedDisplaySwitch.h"
 #include <windows.h>
 #include <QSettings>
 #include <QStandardPaths>
@@ -134,7 +135,10 @@ QPixmap recolorIcon(const QPixmap &originalIcon, const QColor &color)
 
 QIcon Utils::getIcon()
 {
-    bool secondary = Utils::isExternalMonitorEnabled();
+    std::wstring lastModeWString = EDS::getLastMode();
+    QString lastMode = QString::fromStdWString(lastModeWString);
+    bool secondary = (lastMode == "internal") ? false : true;
+
     QString theme = getTheme();
     QPixmap iconPixmap(":/icons/tray_icon.png");
 
@@ -153,11 +157,11 @@ QIcon Utils::getIcon()
     return QIcon(recoloredIcon);
 }
 
-void Utils::playSoundNotification(bool enabled)
+void Utils::playSoundNotification(int effect)
 {
     const wchar_t* soundFile;
 
-    if (enabled) {
+    if (effect == 1) {
         soundFile = L"C:\\Windows\\Media\\Windows Hardware Insert.wav";
     } else {
         soundFile = L"C:\\Windows\\Media\\Windows Hardware Remove.wav";

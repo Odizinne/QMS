@@ -1,10 +1,9 @@
-#include "qms.h"
-#include "utils.h"
+#include "QMS.h"
+#include "Utils.h"
+#include "EnhancedDisplaySwitch.h"
 #include <QMenu>
 #include <QAction>
 #include <QStandardPaths>
-
-using namespace Utils;
 
 QMS::QMS(QWidget *parent)
     : QWidget(parent)
@@ -32,7 +31,7 @@ QMS::~QMS()
 
 void QMS::createTrayIcon()
 {
-    trayIcon->setIcon(getIcon());
+    trayIcon->setIcon(Utils::getIcon());
     QMenu *trayMenu = new QMenu(this);
 
     QAction *settingsAction = new QAction("Settings", this);
@@ -104,16 +103,20 @@ void QMS::loadSettings()
 
 void QMS::switchScreen()
 {
-    if (isExternalMonitorEnabled()) {
-        runEnhancedDisplaySwitch(false, NULL);
-        if (playNotification) {
-            playSoundNotification(false);
-        }
+    std::wstring lastModeWString = EDS::getLastMode();
+    QString lastMode = QString::fromStdWString(lastModeWString);
+    int notificationSoundEffect;
+
+    if (lastMode == "internal") {
+        EDS::runDisplaySwitch(screenMode + 2);
+        notificationSoundEffect = 1;
     } else {
-        runEnhancedDisplaySwitch(true, screenMode);
-        if (playNotification) {
-            playSoundNotification(true);
-        }
+        EDS::runDisplaySwitch(1);
+        notificationSoundEffect = 2;
     }
-    trayIcon->setIcon(getIcon());
+
+    if (playNotification) {
+        Utils::playSoundNotification(notificationSoundEffect);
+    }
+    trayIcon->setIcon(Utils::getIcon());
 }

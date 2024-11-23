@@ -1,5 +1,5 @@
-#include "qms.h"
-#include "utils.h"
+#include "QMS.h"
+#include "Utils.h"
 #include <QApplication>
 
 using namespace Utils;

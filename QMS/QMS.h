@@ -3,12 +3,12 @@
 
 #include <QApplication>
 #include <QSystemTrayIcon>
-#include <windows.h>
+#include <Windows.h>
 #include <QDir>
 #include <QFile>
 #include <QFileSystemWatcher>
 #include <QSettings>
-#include "configurator.h"
+#include "Configurator.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
