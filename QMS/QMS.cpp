@@ -3,30 +3,31 @@
 #include "Dependencies/EnhancedDisplaySwitch/EnhancedDisplaySwitch.h"
 #include <QMenu>
 #include <QAction>
-#include <QStandardPaths>
 
 QMS::QMS(QWidget *parent)
     : QWidget(parent)
     , configurator(nullptr)
+    , registryMonitor(nullptr)
     , trayIcon(new QSystemTrayIcon(this))
     , settings("Odizinne", "QMS")
-    , firstRun(false)
 {
     loadSettings();
     createTrayIcon();
+    registerGlobalHotkey();
 
-    if (!registerGlobalHotkey()) {
-        qWarning() << "Failed to register global hotkey";
-    }
-    if (firstRun) {
-        showSettings();
-    }
+    registryMonitor = new RegistryMonitor("SOFTWARE\\EnhancedDisplaySwitch", this);
+    connect(registryMonitor, &RegistryMonitor::registryChanged, this, &QMS::onRegistryChanged);
+    registryMonitor->start();
 }
 
 QMS::~QMS()
 {
     unregisterGlobalHotkey();
     delete configurator;
+    if (registryMonitor) {
+        registryMonitor->stopMonitoring();
+        delete registryMonitor;
+    }
 }
 
 void QMS::createTrayIcon()
@@ -89,6 +90,10 @@ void QMS::showSettings()
     configurator->show();
 }
 
+void QMS::onRegistryChanged() {
+    trayIcon->setIcon(Utils::getIcon());
+}
+
 void QMS::onConfiguratorClosed()
 {
     configurator = nullptr;
@@ -106,17 +111,17 @@ void QMS::switchScreen()
     std::wstring lastModeWString = EDS::getLastMode();
     QString lastMode = QString::fromStdWString(lastModeWString);
     int notificationSoundEffect;
+    int mode;
 
     if (lastMode == "internal") {
-        EDS::runDisplaySwitch(screenMode + 2);
+        mode = screenMode + 2;
         notificationSoundEffect = 1;
     } else {
-        EDS::runDisplaySwitch(1);
+        mode = 1;
         notificationSoundEffect = 2;
     }
 
-    if (playNotification) {
-        Utils::playSoundNotification(notificationSoundEffect);
-    }
+    EDS::runDisplaySwitch(mode);
+    if (playNotification) Utils::playSoundNotification(notificationSoundEffect);
     trayIcon->setIcon(Utils::getIcon());
 }

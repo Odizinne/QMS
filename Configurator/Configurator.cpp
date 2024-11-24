@@ -1,20 +1,17 @@
 #include "Configurator.h"
 #include "ui_Configurator.h"
 #include "ShortcutManager.h"
-#include <QStandardPaths>
-#include <QDir>
 
 Configurator::Configurator(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Configurator)
-    , firstRun(false)
     , settings("Odizinne", "QMS")
 {
     ui->setupUi(this);
     populateComboBox();
     loadSettings();
     initUiConnections();
-    ui->startupCheckBox->setChecked(ShortcutManager::isShortcutPresent());
+    ui->startupCheckBox->setChecked(ShortcutManager::isShortcutPresent("QMS.lnk"));
 }
 
 Configurator::~Configurator()
@@ -33,12 +30,12 @@ void Configurator::populateComboBox()
 
 void Configurator::initUiConnections()
 {
-    connect(ui->startupCheckBox, &QCheckBox::stateChanged, this, &Configurator::manageStartupShortcut);
+    connect(ui->startupCheckBox, &QCheckBox::checkStateChanged, this, &Configurator::manageStartupShortcut);
 }
 
 void Configurator::manageStartupShortcut()
 {
-    ShortcutManager::manageShortcut(ui->startupCheckBox->isChecked());
+    ShortcutManager::manageShortcut(ui->startupCheckBox->isChecked(), "QMS.lnk");
 }
 
 void Configurator::loadSettings()
@@ -51,10 +48,4 @@ void Configurator::saveSettings()
 {
     settings.setValue("mode", ui->modeComboBox->currentIndex());
     settings.setValue("notification", ui->notificationCheckBox->isChecked());
-}
-
-void Configurator::createDefaultSettings()
-{
-    firstRun = true;
-    saveSettings();
 }

@@ -18,6 +18,7 @@ qt_add_executable(QMS WIN32 MACOSX_BUNDLE
     Utils/Utils.cpp Utils/Utils.h
     main.cpp
     Resources/appicon.rc
+    RegistryMonitor/RegistryMonitor.h RegistryMonitor/RegistryMonitor.cpp
 )
 
 target_include_directories(QMS PRIVATE
@@ -25,6 +26,7 @@ target_include_directories(QMS PRIVATE
     QMS
     ShortcutManager
     Utils
+    RegistryMonitor
 )
 
 target_link_libraries(QMS PRIVATE
@@ -34,7 +36,6 @@ target_link_libraries(QMS PRIVATE
     user32
     winmm
 )
-
 
 # Resources:
 set(resources_resource_files

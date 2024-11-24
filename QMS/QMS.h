@@ -4,11 +4,9 @@
 #include <QApplication>
 #include <QSystemTrayIcon>
 #include <Windows.h>
-#include <QDir>
-#include <QFile>
-#include <QFileSystemWatcher>
 #include <QSettings>
 #include "Configurator.h"
+#include "RegistryMonitor.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -29,22 +27,25 @@ protected:
 
 private slots:
     void showSettings();
+    void onRegistryChanged();
 
 private:
-    Configurator* configurator;
+    Configurator *configurator;
+    RegistryMonitor *registryMonitor;
+    QSystemTrayIcon *trayIcon;
+
+    QSettings settings;
+
     int screenMode;
     bool playNotification;
     void createTrayIcon();
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
     bool registerGlobalHotkey();
     void unregisterGlobalHotkey();
-    QSystemTrayIcon *trayIcon;
     static const int HOTKEY_ID = 1;
 
-    QSettings settings;
     void loadSettings();
     void onConfiguratorClosed();
-    bool firstRun;
     void switchScreen();
 };
 #endif // QMS_H

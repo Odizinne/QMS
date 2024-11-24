@@ -2,13 +2,9 @@
 #include "Dependencies/EnhancedDisplaySwitch/EnhancedDisplaySwitch.h"
 #include <windows.h>
 #include <QSettings>
-#include <QStandardPaths>
-#include <QDir>
-#include <QProcess>
 
 QString getTheme()
 {
-    // Determine the theme based on registry value
     QSettings settings(
         "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
         QSettings::NativeFormat);
@@ -17,7 +13,6 @@ QString getTheme()
     return (value == 0) ? "light" : "dark";
 }
 
-// Helper function to convert a BYTE value to a hex string
 QString toHex(BYTE value) {
     const char* hexDigits = "0123456789ABCDEF";
     return QString("%1%2")
@@ -25,7 +20,6 @@ QString toHex(BYTE value) {
         .arg(hexDigits[value & 0xF]);
 }
 
-// Function to fetch the accent color directly from the Windows registry
 QString getAccentColor(const QString &accentKey)
 {
     HKEY hKey;

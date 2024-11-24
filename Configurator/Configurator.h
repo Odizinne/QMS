@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QSettings>
-#include <QFile>
 
 namespace Ui {
 class Configurator;
@@ -23,13 +22,11 @@ private slots:
 
 private:
     Ui::Configurator *ui;
-    bool firstRun;
     QSettings settings;
 
     void populateComboBox();
     void loadSettings();
     void saveSettings();
-    void createDefaultSettings();
 
 signals:
     void closed();

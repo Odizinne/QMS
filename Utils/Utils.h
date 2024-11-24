@@ -2,7 +2,6 @@
 #define UTILS_H
 
 #include <QIcon>
-#include <QString>
 
 namespace Utils {
 
