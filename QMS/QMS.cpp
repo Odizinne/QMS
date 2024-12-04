@@ -6,7 +6,7 @@
 
 QMS::QMS(QWidget *parent)
     : QWidget(parent)
-    , configurator(nullptr)
+    , configurator(new Configurator(this))
     , registryMonitor(nullptr)
     , trayIcon(new QSystemTrayIcon(this))
     , settings("Odizinne", "QMS")
@@ -14,6 +14,8 @@ QMS::QMS(QWidget *parent)
     loadSettings();
     createTrayIcon();
     registerGlobalHotkey();
+
+    connect(configurator, &Configurator::settingsChanged, this, &QMS::loadSettings);
 
     registryMonitor = new RegistryMonitor("SOFTWARE\\EnhancedDisplaySwitch", this);
     connect(registryMonitor, &RegistryMonitor::registryChanged, this, &QMS::onRegistryChanged);
@@ -24,10 +26,6 @@ QMS::~QMS()
 {
     unregisterGlobalHotkey();
     delete configurator;
-    if (registryMonitor) {
-        registryMonitor->stopMonitoring();
-        delete registryMonitor;
-    }
 }
 
 void QMS::createTrayIcon()
@@ -77,27 +75,11 @@ bool QMS::nativeEvent(const QByteArray &eventType, void *message, qintptr *resul
 
 void QMS::showSettings()
 {
-    if (configurator) {
-        configurator->showNormal();
-        configurator->raise();
-        configurator->activateWindow();
-        return;
-    }
-
-    configurator = new Configurator;
-    configurator->setAttribute(Qt::WA_DeleteOnClose);
-    connect(configurator, &Configurator::closed, this, &QMS::onConfiguratorClosed);
-    configurator->show();
+    configurator->showWindow();
 }
 
 void QMS::onRegistryChanged() {
     trayIcon->setIcon(Utils::getIcon());
-}
-
-void QMS::onConfiguratorClosed()
-{
-    configurator = nullptr;
-    loadSettings();
 }
 
 void QMS::loadSettings()

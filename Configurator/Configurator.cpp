@@ -1,51 +1,64 @@
 #include "Configurator.h"
-#include "ui_Configurator.h"
 #include "ShortcutManager.h"
+#include <QQmlContext>
 
-Configurator::Configurator(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::Configurator)
+Configurator::Configurator(QObject *parent)
+    : QObject(parent)
     , settings("Odizinne", "QMS")
 {
-    ui->setupUi(this);
-    populateComboBox();
-    loadSettings();
-    initUiConnections();
-    ui->startupCheckBox->setChecked(ShortcutManager::isShortcutPresent("QMS.lnk"));
+    engine = new QQmlApplicationEngine(this);
+    engine->rootContext()->setContextProperty("configurator", this);
+    engine->load(QUrl(QStringLiteral("qrc:/qml/Configurator.qml")));
 }
 
 Configurator::~Configurator()
 {
-    saveSettings();
-    emit closed();
-    delete ui;
+    delete engine;
 }
 
-void Configurator::populateComboBox()
+int Configurator::mode() const
 {
-    ui->modeComboBox->addItem(tr("Clone"));
-    ui->modeComboBox->addItem(tr("Extend"));
-    ui->modeComboBox->addItem(tr("External"));
+    return settings.value("mode", 0).toInt();
 }
 
-void Configurator::initUiConnections()
+void Configurator::setMode(int newMode)
 {
-    connect(ui->startupCheckBox, &QCheckBox::checkStateChanged, this, &Configurator::manageStartupShortcut);
+    if (mode() != newMode) {
+        settings.setValue("mode", newMode);
+        emit modeChanged();
+        emit settingsChanged();
+    }
 }
 
-void Configurator::manageStartupShortcut()
+bool Configurator::notification() const
 {
-    ShortcutManager::manageShortcut(ui->startupCheckBox->isChecked(), "QMS.lnk");
+    return settings.value("notification", true).toBool();
 }
 
-void Configurator::loadSettings()
+void Configurator::setNotification(bool newNotification)
 {
-    ui->modeComboBox->setCurrentIndex(settings.value("mode", 0).toInt());
-    ui->notificationCheckBox->setChecked(settings.value("notification", true).toBool());
+    if (notification() != newNotification) {
+        settings.setValue("notification", newNotification);
+        emit notificationChanged();
+        emit settingsChanged();
+    }
 }
 
-void Configurator::saveSettings()
+bool Configurator::runAtStartup() const
 {
-    settings.setValue("mode", ui->modeComboBox->currentIndex());
-    settings.setValue("notification", ui->notificationCheckBox->isChecked());
+    return ShortcutManager::isShortcutPresent("QMS.lnk");
 }
+
+void Configurator::setRunAtStartup(bool newRunAtStartup)
+{
+    ShortcutManager::manageShortcut(newRunAtStartup, "QMS.lnk");
+}
+
+void Configurator::showWindow()
+{
+    QObject *rootObject = engine->rootObjects().isEmpty() ? nullptr : engine->rootObjects().first();
+    if (rootObject) {
+        rootObject->setProperty("visible", true);
+    }
+}
+

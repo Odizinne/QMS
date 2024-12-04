@@ -5,6 +5,7 @@
 #include <QSystemTrayIcon>
 #include <Windows.h>
 #include <QSettings>
+#include <qwidget.h>
 #include "Configurator.h"
 #include "RegistryMonitor.h"
 
@@ -45,7 +46,6 @@ private:
     static const int HOTKEY_ID = 1;
 
     void loadSettings();
-    void onConfiguratorClosed();
     void switchScreen();
 };
 #endif // QMS_H

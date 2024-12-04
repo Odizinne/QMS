@@ -133,9 +133,3 @@ int getBuildNumber()
 
     return std::stoi(buildNumberString);
 }
-
-bool Utils::isWindows10()
-{
-    int buildNumber = getBuildNumber();
-    return (buildNumber >= 10240 && buildNumber < 22000);
-}
