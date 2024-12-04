@@ -1,5 +1,6 @@
 #include "Configurator.h"
 #include "ShortcutManager.h"
+#include "Utils.h"
 #include <QQmlContext>
 
 Configurator::Configurator(QObject *parent)
@@ -8,7 +9,11 @@ Configurator::Configurator(QObject *parent)
 {
     engine = new QQmlApplicationEngine(this);
     engine->rootContext()->setContextProperty("configurator", this);
-    engine->load(QUrl(QStringLiteral("qrc:/qml/Configurator.qml")));
+    if (Utils::isWindows10()) {
+        engine->load(QUrl(QStringLiteral("qrc:/qml/Configurator10.qml")));
+    } else {
+        engine->load(QUrl(QStringLiteral("qrc:/qml/Configurator.qml")));
+    }
 }
 
 Configurator::~Configurator()

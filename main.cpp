@@ -1,5 +1,6 @@
 #include "QMS.h"
 #include <QApplication>
+#include "Utils.h"
 
 int main(int argc, char *argv[])
 {

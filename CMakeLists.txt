@@ -44,6 +44,7 @@ set(resources_resource_files
     "Resources/icons/icon.png"
     "Resources/icons/tray_icon.png"
     "Resources/qml/Configurator.qml"
+    "Resources/qml/Configurator10.qml"
 )
 
 qt_add_resources(QMS "resources"
