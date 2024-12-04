@@ -26,6 +26,7 @@ QMS::~QMS()
 {
     unregisterGlobalHotkey();
     delete configurator;
+    delete registryMonitor;
 }
 
 void QMS::createTrayIcon()

@@ -5,14 +5,12 @@ RegistryMonitor::RegistryMonitor(const QString &subKey, QObject *parent)
 
 RegistryMonitor::~RegistryMonitor() {
     stopMonitoring();
-    wait();
 }
 
 void RegistryMonitor::stopMonitoring() {
     m_stop = true;
     if (isRunning()) {
         quit();
-        wait();
     }
 }
 
