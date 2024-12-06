@@ -26,39 +26,37 @@ QString getAccentColor(const QString &accentKey)
     BYTE accentPalette[32];  // AccentPalette contains 32 bytes
     DWORD bufferSize = sizeof(accentPalette);
 
-    // Open the Windows registry key for AccentPalette
     if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Accent", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-        // Read the AccentPalette binary data
         if (RegGetValueW(hKey, NULL, L"AccentPalette", RRF_RT_REG_BINARY, NULL, accentPalette, &bufferSize) == ERROR_SUCCESS) {
-            // Close the registry key after reading
             RegCloseKey(hKey);
 
-            // Determine the correct index based on the accentKey
             int index = 0;
-            if (accentKey == "dark2") index = 20;   // Index for "dark2"
-            else if (accentKey == "light3") index = 0;  // Index for "light3"
+            if (accentKey == "light3") index = 0;
+            else if (accentKey == "light2") index = 4;
+            else if (accentKey == "light1") index = 8;
+            else if (accentKey == "normal") index = 12;
+            else if (accentKey == "dark1") index = 16;
+            else if (accentKey == "dark2") index = 20;
+            else if (accentKey == "dark3") index = 24;
             else {
                 qDebug() << "Invalid accentKey provided.";
-                return "#FFFFFF";  // Return white if invalid accentKey
+                return "#FFFFFF";
             }
 
-            // Extract RGB values and convert them to hex format
             QString red = toHex(accentPalette[index]);
             QString green = toHex(accentPalette[index + 1]);
             QString blue = toHex(accentPalette[index + 2]);
 
-            // Return the hex color code
             return QString("#%1%2%3").arg(red, green, blue);
         } else {
             qDebug() << "Failed to retrieve AccentPalette from the registry.";
         }
 
-        RegCloseKey(hKey);  // Ensure the key is closed
+        RegCloseKey(hKey);
     } else {
         qDebug() << "Failed to open registry key.";
     }
 
-    // Fallback color if registry access fails
     return "#FFFFFF";
 }
 
@@ -92,10 +90,18 @@ QIcon Utils::getIcon()
     QPixmap iconPixmap(":/icons/tray_icon.png");
 
     QColor recolor;
+
+
     if (theme == "light" && secondary == true) {
         recolor = QColor(getAccentColor("light3"));
+        if (Utils::isWindows10()) {
+            recolor = QColor(getAccentColor("normal"));
+        }
     } else if (theme == "dark" && secondary == true) {
         recolor = QColor(getAccentColor("dark2"));
+        if (Utils::isWindows10()) {
+            recolor = QColor(getAccentColor("normal"));
+        }
 
     } else {
         recolor = (theme == "dark") ? QColor(19, 19, 19) : QColor(255, 255, 255);
@@ -132,6 +138,7 @@ int getBuildNumber()
         bool ok;
         int buildNumber = buildVariant.toString().toInt(&ok);
         if (ok) {
+            qDebug() << buildNumber;
             return buildNumber;
         }
     }
