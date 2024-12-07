@@ -25,6 +25,7 @@ protected:
 private:
     QString m_subKey;
     bool m_stop;
+    HANDLE m_eventHandle; // Event handle for signaling
 };
 
 #endif // REGISTRYMONITOR_H

@@ -138,7 +138,6 @@ int getBuildNumber()
         bool ok;
         int buildNumber = buildVariant.toString().toInt(&ok);
         if (ok) {
-            qDebug() << buildNumber;
             return buildNumber;
         }
     }
