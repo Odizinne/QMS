@@ -9,6 +9,10 @@ Configurator::Configurator(QObject *parent)
 {
     engine = new QQmlApplicationEngine(this);
     engine->rootContext()->setContextProperty("configurator", this);
+
+    QColor accentColor = Utils::getAccentColor("normal");
+    engine->rootContext()->setContextProperty("accentColor", accentColor);
+
     if (Utils::isWindows10()) {
         engine->load(QUrl(QStringLiteral("qrc:/qml/Configurator10.qml")));
     } else {

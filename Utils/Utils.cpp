@@ -20,7 +20,7 @@ QString toHex(BYTE value) {
         .arg(hexDigits[value & 0xF]);
 }
 
-QString getAccentColor(const QString &accentKey)
+QString Utils::getAccentColor(const QString &accentKey)
 {
     HKEY hKey;
     BYTE accentPalette[32];  // AccentPalette contains 32 bytes
